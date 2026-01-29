@@ -1,5 +1,5 @@
 from Modele.SQLManager import Base, SessionLocal
-from sqlalchemy import Column, Integer, Enum
+from sqlalchemy import Column, Integer, Enum, ForeignKey, ColumnElement
 from Modele.Operation import Operation
 from enum import IntEnum
 import logging
@@ -15,11 +15,12 @@ class Compte(Base):
     __tablename__ = 'comptes'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    type_compte = Column(Enum(TypeCompte), default=TypeCompte.COURANT)
+    type_compte = Column(Enum(TypeCompte), default=TypeCompte.COURANT, nullable=False)
+    id_client  = Column(Integer, ForeignKey("customers.id"), nullable=False)
     #solde = Column(Float, default=0.0)
 
     @property
-    def solde(self):
+    def solde(self) -> ColumnElement[int] | int:
         """Calcule le solde actuel en sommant toutes les opérations."""
         with SessionLocal() as session:
             # Opérations cibles
@@ -32,13 +33,13 @@ class Compte(Base):
             return total_credits - total_debits
         
     @classmethod
-    def creer(cls, type_enum, solde_initial=0.0):
+    def creer(cls, type_enum, id_client, solde_initial=0.0):
         """
         Crée le compte et, si un solde initial est fourni, 
         génère une opération de dépôt initial
         """
         with SessionLocal() as session:
-            nouveau = cls(type_compte=type_enum)
+            nouveau = cls(type_compte=type_enum, id_client=id_client)
             session.add(nouveau)
             session.commit()
             session.refresh(nouveau)

@@ -1,24 +1,29 @@
 from Modele.SQLManager import engine, Base, SessionLocal
 from Modele.Compte import Compte, TypeCompte
+import logging
 
-def initialiser_bdd():
+logger = logging.getLogger(__name__)
+def initialiser_bdd() -> None:
+    """
+    Initialise la base de données SQL
+    """
     Base.metadata.drop_all(bind=engine)
-    print("Base de données vidée")
+    logger.debug("Database emptied")
     Base.metadata.create_all(bind=engine)
-    print("Base de données initialisée")
-def initialiser_coffre_fort():
+    logger.info("Database Initialized")
+def initialiser_coffre_fort() -> None:
+    """
+    Initialise le compte 0 pour permettre de créditer un compte lors de sa création
+    """
     with SessionLocal() as session:
-        # On vérifie si le compte 0 existe déjà
         coffre = session.query(Compte).filter_by(id=0).first()
         
         if not coffre:
-            # Pour forcer l'ID à 0 avec SQLAlchemy/SQLite
-            coffre = Compte(id=0, type_compte=TypeCompte.COURANT)
+            coffre = Compte(id=0, type_compte=TypeCompte.COURANT) # id 0
             session.add(coffre)
             try:
                 session.commit()
-                print("Le Coffre-fort de la banque (ID 0) a été initialisé.")
+                logger.info("The safe was initialized")
             except Exception:
                 session.rollback()
-                # Certains systèmes n'aiment pas l'ID 0, on peut utiliser 999
-                print("Note : L'ID 0 peut être réservé, vérifiez votre configuration.")
+                logger.error("Failed to initialize the safe, ID 0 may be reserved, check your configuration...")

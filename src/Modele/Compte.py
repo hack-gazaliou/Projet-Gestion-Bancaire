@@ -1,10 +1,10 @@
 from Modele.SQLManager import Base, SessionLocal
-from sqlalchemy import create_engine, Column, Integer, Float, Enum
-from sqlalchemy.orm import declarative_base, sessionmaker
+from sqlalchemy import Column, Integer, Enum
 from Modele.Operation import Operation
 from enum import IntEnum
+import logging
 
-
+logger = logging.getLogger(__name__)
 
 class TypeCompte(IntEnum):
     COURANT = 0
@@ -22,21 +22,20 @@ class Compte(Base):
     def solde(self):
         """Calcule le solde actuel en sommant toutes les opérations."""
         with SessionLocal() as session:
-            # Opérations où ce compte est la CIBLE (crédit)
+            # Opérations cibles
             credits = session.query(Operation).filter_by(id_compte_cible=self.id).all()
             total_credits = sum(op.montant for op in credits)
 
-            # Opérations où ce compte est la SOURCE (débit)
+            # Opérations sources
             debits = session.query(Operation).filter_by(id_compte_source=self.id).all()
             total_debits = sum(op.montant for op in debits)
-
             return total_credits - total_debits
         
     @classmethod
     def creer(cls, type_enum, solde_initial=0.0):
         """
         Crée le compte et, si un solde initial est fourni, 
-        génère une opération technique de dépôt initial.
+        génère une opération de dépôt initial
         """
         with SessionLocal() as session:
             nouveau = cls(type_compte=type_enum)
@@ -45,8 +44,7 @@ class Compte(Base):
             session.refresh(nouveau)
             
             if solde_initial != 0:
-                # On crée une opération "système" (ex: source ID 0 ou 9999)
-                # pour simuler le dépôt initial
+                # Simulation dépot initial pour faire les transactions de création de compte
                 from Modele.Operation import Operation
                 op_initiale = Operation(
                     id_compte_source=0, # 0 = Coffre-fort de la banque
@@ -59,27 +57,25 @@ class Compte(Base):
             return nouveau
     @classmethod
     def obtenir(cls, compte_id):
-        """Récupère un objet compte par son ID."""
+        """Récupère un objet compte par son ID"""
         with SessionLocal() as session:
             return session.query(cls).filter_by(id=compte_id).first()
 
-    # --- MÉTHODES D'INSTANCE ---
-
     def sauvegarder(self):
-        """Met à jour l'état actuel de l'objet en base de données."""
+        """Met à jour l'état actuel de l'objet en base de données"""
         with SessionLocal() as session:
-            session.merge(self) # Fusionne l'objet actuel avec la session
+            session.merge(self) # fusionner l'objet actuel avec la session
             session.commit()
-            print(f"Compte {self.id} mis à jour.")
+            logger.debug(f"Account {self.id} updated")
 
     def supprimer(self):
-        """Supprime l'instance actuelle de la base de données."""
+        """Supprime l'instance actuelle de la base de données"""
         with SessionLocal() as session:
             objet_a_supprimer = session.query(Compte).get(self.id)
             if objet_a_supprimer:
                 session.delete(objet_a_supprimer)
                 session.commit()
-                print(f"Compte {self.id} supprimé.")
+                logger.debug(f"Account {self.id} deleted")
 
     def __repr__(self):
         return f"<Compte(id={self.id}, type={self.type_compte.name}, solde={self.solde}€)>"

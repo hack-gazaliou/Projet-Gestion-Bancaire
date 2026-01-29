@@ -2,7 +2,6 @@ from Modele.SQLManager import Base, SessionLocal
 from sqlalchemy import ForeignKey, Column, Integer, String, Date
 from sqlalchemy.orm import declarative_base, sessionmaker
 from datetime import date
-import calendar
 
 
 
@@ -16,7 +15,7 @@ class Customer(Base):
     email = Column(String(50), nullable = False)
     number = Column(String(16), nullable=False)
     expire_date = Column(Date, nullable=False)
-    adresse = Column(String(200))
+    adress = Column(String(200))
 
 
 

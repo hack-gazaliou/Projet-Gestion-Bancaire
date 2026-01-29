@@ -1,8 +1,8 @@
 import sys
 import os
 from PySide6.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout, 
-                             QHBoxLayout, QLineEdit, QPushButton, QListWidget, QLabel)
-from PySide6.QtGui import QIcon, QAction
+                               QHBoxLayout, QLineEdit, QPushButton, QListWidget, QLabel, QToolBar,QListWidgetItem) # Ajout de QToolBar
+from PySide6.QtGui import QAction
 from PySide6.QtCore import Qt
 
 class MainWindow(QMainWindow):
@@ -12,78 +12,123 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("Barre latérale fixe - PySide6")
         self.resize(800, 500)
 
-        self.sideBar=self.createSideBar()
-        self.menuBar=self.createMenuBar()
-        self.zone_droite_widget = QWidget()  # Widget conteneur pour la zone droite
+        self.createToolBar()
+
+        content_area = QWidget() 
+        self.setCentralWidget(content_area)
+        self.content_layout = QHBoxLayout(content_area)
+
+        self.side_client_bar = self.createSideClientBar()
+
+        self.zone_droite_widget = QWidget()
+        self.zone_droite_widget.setStyleSheet("background-color: white;")
         self.zone_droite_layout = QVBoxLayout(self.zone_droite_widget)
         self.zone_droite_layout.addWidget(QListWidget())
 
-        central_widget = QWidget() #necessaire pour QMainWindow
-        self.setCentralWidget(central_widget)
-        self.page_Layout = QHBoxLayout(central_widget)
+        self.content_layout.addLayout(self.side_client_bar, 1)
+        self.content_layout.addWidget(self.zone_droite_widget, 4)
 
-        self.page_Layout.addLayout(self.sideBar, 1)
-        self.page_Layout.addWidget(self.zone_droite_widget, 4)
-        #pas besoin d'ajouter menuBar, QMainWindow le gere automatiquement
+        self.selected_user=None
 
-        self.edit.textChanged.connect(self.filtrer_clients)
-        
-    def filtrer_clients(self):#plus tard peut etre autoriser recherche par nom ou prenom
-        texte_recherche = self.edit.text().lower()
+    def filtrer_clients(self):
+        texte_recherche = self.barre_recherche_client.text().lower()
         for i in range(self.client_list.count()):
             item = self.client_list.item(i)
-            correspondance = item.text().lower().startswith(texte_recherche)
-            item.setHidden(not correspondance)
+            if item: 
+                correspondance = item.text().lower().startswith(texte_recherche)
+                item.setHidden(not correspondance)
 
+    def createToolBar(self):
+        toolbar = self.addToolBar("Menu Principal")
+        toolbar.setMovable(False) 
 
-    def createZoneDroite(self):
-        return QVBoxLayout()
+        action_comptes = QAction("Comptes", self)
+        action_comptes.triggered.connect(lambda: self.show_account(self.selected_user))
+        toolbar.addAction(action_comptes)
 
-    def createMenuBar(self):
-        menu_bar = self.menuBar()
-        file_menu = menu_bar.addMenu("&File")
-        edit_menu = menu_bar.addMenu("&Edit")
-        help_menu = menu_bar.addMenu("&Help")
-        return menu_bar
+        action_virements = QAction("Virements", self)
+        action_virements.triggered.connect(self.reinitialize_text_zone)
+        toolbar.addAction(action_virements)
 
-    def createSideBar(self):
+        action_depot = QAction("Depot", self)
+        action_depot.triggered.connect(lambda: print("TODO"))
+        toolbar.addAction(action_depot)
+
+        action_retrait = QAction("Retrait", self)
+        action_retrait.triggered.connect(lambda: print("TODO"))
+        toolbar.addAction(action_retrait)
+
+        action_modif = QAction("Modifier infos", self)
+        action_modif.triggered.connect(lambda: print("TODO"))
+        toolbar.addAction(action_modif)
+
+    def createSideClientBar(self):
         sidebar_layout = QVBoxLayout()
 
-        barre_recherche = QHBoxLayout()
-        self.edit = QLineEdit()
-        self.edit.setPlaceholderText("Nom client")
+        self.barre_recherche_client = QLineEdit()
+        self.barre_recherche_client.setPlaceholderText("Nom client")
+        self.barre_recherche_client.textChanged.connect(self.filtrer_clients)
         
-        barre_recherche.addWidget(self.edit)
-        
-        sidebar_layout.addLayout(barre_recherche)
+        sidebar_layout.addWidget(self.barre_recherche_client)
 
         self.client_list = QListWidget()
         self.client_list.setAlternatingRowColors(True)
-        
-        liste_clients = ["Client 1", "Client 2", "Client 3", "Augustin", "test"]
-        self.client_list.addItems(liste_clients)
-        self.client_list.itemClicked.connect(self.afficher_details_client)
-        
+
+        self.db_clients = self.get_customer_list()
+
+        for client in self.db_clients:
+            item = QListWidgetItem(client["nom"])
+            item.setData(Qt.UserRole, client["id"])#on stocke l'identifiant au cas ou il y ait des doublons
+            self.client_list.addItem(item)
+
+        self.client_list.itemClicked.connect(self.show_account)
         sidebar_layout.addWidget(self.client_list)
+
+        self.bouton_create_new_client = QPushButton("Créer un client")
+        #self.bouton_create_new_client.clicked.connect(TODO)
+
+        sidebar_layout.addWidget(self.bouton_create_new_client)
 
         return sidebar_layout
 
-    def afficher_details_client(self, item):
-        new_widget = QWidget()
-        new_widget.setStyleSheet("background-color: white;")
-        new_layout = QVBoxLayout(new_widget)
+    def show_account(self, item):
+        if item:
+            self.selected_user=item
+            nom_client = QLabel(f"<b>Détails - {item.text()},id = {item.data(Qt.UserRole)}</b>")
+            comptes = QLabel(f"Informations du client :\n\nComptes: Courant, PEL, Livret A")
         
-        
-        nom_client = QLabel(f"<b>Détails - {item.text()}</b>")
-        comptes = QLabel(f"Informations du client :\n\nComptes: Courant, PEL, Livret A")
-        
-        new_layout.addWidget(nom_client)
-        new_layout.addWidget(comptes)
-        new_layout.addStretch()#comble l'espace vide en bas
+            new_zone_droite_widget = QWidget()
+            new_zone_droite_widget.setStyleSheet("background-color: white;")
 
-        self.page_Layout.replaceWidget(self.zone_droite_widget, new_widget)
+            new_zone_droite_layout = QVBoxLayout(new_zone_droite_widget)
+            new_zone_droite_layout.addWidget(nom_client)
+            new_zone_droite_layout.addWidget(comptes)
+            new_zone_droite_layout.addStretch()
+            
+            self.content_layout.replaceWidget(self.zone_droite_widget, new_zone_droite_widget)
+            self.zone_droite_widget.deleteLater()
+            self.zone_droite_widget = new_zone_droite_widget
+
+    def reinitialize_text_zone(self):
+        new_zone_droite_widget = QWidget()
+        new_zone_droite_widget.setStyleSheet("background-color: white;")
+
+        new_zone_droite_layout = QVBoxLayout(new_zone_droite_widget)
+        new_zone_droite_layout.addStretch()
+        
+        self.content_layout.replaceWidget(self.zone_droite_widget, new_zone_droite_widget)
         self.zone_droite_widget.deleteLater()
-        self.zone_droite_widget = new_widget
+        self.zone_droite_widget = new_zone_droite_widget
+
+    def get_customer_list(self)-> dict:
+        return [
+            {"id": 101, "nom": "Client 1"},
+            {"id": 102, "nom": "Sacha Bliard"},
+            {"id": 103, "nom": "Antoine Augustin"},
+            {"id": 104, "nom": "Sacha Bliard"}, # Homonyme
+            {"id": 105, "nom": "Hack Gazaliou"}
+        ]
+
 
 
 

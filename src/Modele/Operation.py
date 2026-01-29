@@ -1,6 +1,11 @@
 from sqlalchemy import Column, Integer, Float, ForeignKey, DateTime
 from Modele.SQLManager import Base, SessionLocal
 from datetime import datetime
+from enum import Enum
+
+class TypeOperation(Enum):
+    DEPOT = 0
+    RETRAIT = 1
 
 class Operation(Base):
     __tablename__ = 'operations'

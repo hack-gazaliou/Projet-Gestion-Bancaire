@@ -47,9 +47,9 @@ class Customer:
             last_name=self.personal_info.last_name,
             phone=self.contact_info.phone,
             email=self.contact_info.email,
-            number=self.card_info.card_number,
+            card_number=self.card_info.card_number,
             expire_date=self.card_info.expire_date,
-            adress=self.address
+            address=self.address
         )
 
         if self.customer_id is None:
@@ -98,7 +98,7 @@ class Customer:
                 email=customer_storage_model.email
             )
             card: CustomerCardInfo = CustomerCardInfo(
-                card_number=customer_storage_model.number, 
+                card_number=customer_storage_model.card_number, 
                 expire_date=customer_storage_model.expire_date
             )
             return cls(

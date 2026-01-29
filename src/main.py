@@ -1,6 +1,6 @@
 import logging
 import Controleur.Logger
-from Modele.DBSetup import initialiser_bdd, initialiser_coffre_fort
+from Modele.SQL.DBSetup import initialiser_bdd, initialiser_coffre_fort
 from Modele.Compte import Compte, TypeCompte
 from Modele.Operation import Operation
 

@@ -1,7 +1,5 @@
-from Modele.SQLManager import Base, SessionLocal
-from sqlalchemy import Column, Integer, Enum, ForeignKey, ColumnElement
-from Modele.Operation import Operation
 from enum import IntEnum
+from Modele.SQL.SQLComptes import SQLCompte
 import logging
 
 logger = logging.getLogger(__name__)
@@ -11,16 +9,19 @@ class TypeCompte(IntEnum):
     LIVRET_A = 1
     PEL = 2
 
-class Compte(Base):
-    __tablename__ = 'comptes'
-
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    type_compte = Column(Enum(TypeCompte), default=TypeCompte.COURANT, nullable=False)
-    id_client  = Column(Integer, ForeignKey("customers.id"), nullable=False)
-    #solde = Column(Float, default=0.0)
+class Compte():
+    def __init__(self, id : int, type_compte : TypeCompte, id_client : int, initial_amount : int = 0) -> None:
+        self.type_compte = type_compte
+        self.id_client = id_client
+        self.id = id 
+        # On ne crée en base QUE si l'id n'existe pas encore
+        if self.id is None:
+            # Note : Assurez-vous que SQLCompte.creer accepte un montant initial
+            new = SQLCompte.creer(self.type_compte, self.id_client,initial_amount) 
+            self.id = new.id
 
     @property
-    def solde(self) -> ColumnElement[int] | int:
+    def solde(self) -> int:
         """Calcule le solde actuel en sommant toutes les opérations."""
         with SessionLocal() as session:
             # Opérations cibles
@@ -33,29 +34,16 @@ class Compte(Base):
             return total_credits - total_debits
         
     @classmethod
-    def creer(cls, type_enum, id_client, solde_initial=0.0):
+    def load(cls, account_id):
         """
-        Crée le compte et, si un solde initial est fourni, 
-        génère une opération de dépôt initial
+        Load an account based on the id
         """
-        with SessionLocal() as session:
-            nouveau = cls(type_compte=type_enum, id_client=id_client)
-            session.add(nouveau)
-            session.commit()
-            session.refresh(nouveau)
-            
-            if solde_initial != 0:
-                # Simulation dépot initial pour faire les transactions de création de compte
-                from Modele.Operation import Operation
-                op_initiale = Operation(
-                    id_compte_source=0, # 0 = Coffre-fort de la banque
-                    id_compte_cible=nouveau.id,
-                    montant=solde_initial
-                )
-                session.add(op_initiale)
-                session.commit()
-            
-            return nouveau
+        account = SQLCompte.get(account_id)
+        if not account:
+            logger.error(f"Account not found")
+            return None
+        loaded_account = cls(id = account.id, type_compte = account.type_compte, id_client = account.id_client)
+
     @classmethod
     def obtenir(cls, compte_id):
         """Récupère un objet compte par son ID"""

@@ -5,7 +5,9 @@ from Modele.Operation import Operation
 from enum import IntEnum
 
 
-DECOUVERT_MAX = 100_000 #en centimes
+ #en centimes
+class Decouvert(Enum) :
+    DECOUVERT_MAX = 100_000 
 
 class TypeCompte(IntEnum):
     COURANT = 0

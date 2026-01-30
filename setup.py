@@ -1,4 +1,4 @@
-""" Setup script for the nt_users_tool package"""
+""" Setup script for the gestion_bancaire package"""
 from setuptools import setup, find_packages
 
 setup(

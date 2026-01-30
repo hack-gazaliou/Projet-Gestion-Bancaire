@@ -1,0 +1,13 @@
+site_name: Documentation Projet Bancaire
+theme:
+  name: material
+
+plugins:
+  - mkdocstrings:
+      handlers:
+        python:
+          paths: [src]
+
+nav:
+  - Accueil: index.md
+  - Référence API: reference.md

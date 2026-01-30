@@ -14,10 +14,12 @@ class CustomerPersonalInfo:
     first_name: str
     last_name: str
 
+
 @dataclass
 class CustomerContactInfo:
     phone: str
     email: str
+
 
 @dataclass
 class CustomerCardInfo:
@@ -44,6 +46,7 @@ class Customer:
         Crée un nouveau Customer si l'ID est absent, ou met à jour l'existante
         """
         from Modele.SQL.SQLCustomer import Customer as CustomerSQL
+
         # Import local pour éviter une erreur ImportError ou AttributeError
         # car classe Customer_SQL importe aussi Customer
 

@@ -6,6 +6,7 @@ from Modele.Operation import Operation
 
 logger = logging.getLogger(__name__)
 
+
 def main():
     initialiser_bdd()
     initialiser_coffre_fort()

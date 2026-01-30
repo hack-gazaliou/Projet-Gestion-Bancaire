@@ -1,4 +1,4 @@
-from Modele.SQLManager import engine, Base, SessionLocal
+from Modele.SQL.SQLManager import engine, Base, SessionLocal
 from Modele.Compte import Compte, TypeCompte
 import logging
 

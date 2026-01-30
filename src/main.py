@@ -1,18 +1,12 @@
-from Modele.DBSetup import initialiser_bdd, initialiser_coffre_fort
 import logging
+import Controleur.Logger
+from Modele.SQL.DBSetup import initialiser_bdd, initialiser_coffre_fort
 from Modele.Compte import Compte, TypeCompte
 from Modele.Operation import Operation
 
-if __name__ == "__main__":
-    logging.basicConfig(
-        format="{asctime} - {levelname} - {message}",
-        style="{",
-        datefmt="%Y-%m-%d %H:%M",
-        filename='bank.log',
-        level= logging.INFO
-    )
-    logger = logging.getLogger(__name__)
-    logger.info("Application started !")
+logger = logging.getLogger(__name__)
+
+def main():
     initialiser_bdd()
     initialiser_coffre_fort()
 
@@ -25,3 +19,7 @@ if __name__ == "__main__":
     logger.debug(f"Solde compte 1 : {c1.solde}€")
     logger.debug(f"Solde compte 2 : {c2.solde}€")
     logger.info("Application stop")
+
+
+if __name__ == "__main__":
+    main()

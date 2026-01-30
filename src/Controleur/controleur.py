@@ -6,24 +6,67 @@ from Modele import Compte
 from Modele import Operation
 from enum import Enum
 from Modele.Compte import Compte, TypeCompte, Decouvert
-from Modele.Operation import Operation
+from Modele.Operation import Operation, TypeOperation
+from Modele.SQLManager import SessionLocal
+#from Modele.Class_SQL.Customer_SQL import Customer as CustomerSQL
 #from Modele.Customer import Customer 
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), 'src')))
 
 DECOUVERT_MAX = Decouvert.DECOUVERT_MAX
 
-def get_client_details(self, client_id):
-    pass
+def get_client_details(self, client_id): # Renvoit les infos perso (hors compte)
+    with SessionLocal() as session:
+        client_obj = Customer.obtain(session, client_id)
+        if not client_obj:
+            return None
+        details = {
+            #"id": client_obj.customer_id,
+            "nom": client_obj.personal_info.last_name,
+            "prenom": client_obj.personal_info.first_name,
+            "telephone": client_obj.contact_info.phone,
+            "email": client_obj.contact_info.email,
+            "adresse": client_obj.address,
+        }
+        return details
 
-def get_tous_les_clients() :
-    pass
+def get_tous_les_clients(self):#Récupère la liste (ID, Nom, Prénom) pour la sidebar.
+    with SessionLocal() as session:
+        clients_sql = session.query(CustomerSQL).all()
+        liste_affichage = []
+        for c in clients_sql:
+            liste_affichage.append({
+                "id": c.customer_id,
+                "nom": f"{c.first_name.capitalize.capitalize()} {c.last_name.capitalize()}" 
+            })   
+        return liste_affichage
 
 def ajouter_compte_client(client_id, type_compte :TypeCompte, solde_initial):
     Compte.creer(client_id, type_compte, solde_initial) #il faut qu'on ajoute l'id client mais pour l'instant il n'est pas en param de creer
-    
 
-def gerer_operation_espece(compte_id, montant, type_operation: Enum) : #il faut ajouter à la classe opération une enum : DEPOT = 0 /RETRAIT=1, je remplacerais "Enum" par son vrai nom
+def get_comptes_client(self, client_id)->dict: #Récupère la liste des comptes d'un client et calcule leurs soldes à la volée.
+        with SessionLocal() as session:
+            try:
+                comptes_du_client = session.query(Compte).filter_by(id_client=client_id).all() #ne devrait pas arriver pcq on a deja créé la colonne id_clilent, bon pour le debug
+            except Exception as e:
+                print(f"Erreur SQL : {e}")
+                return []
+
+            data_comptes = []
+            for compte in comptes_du_client:
+                # On accède à .solde sans parenthèses.
+                valeur_solde = compte.solde 
+                solde_formate = f"{(valeur_solde/100):.2f} €"
+                # Récupération propre du nom de l'Enum (ex: LIVRET_A)
+                nom_type = compte.type_compte.name if hasattr(compte.type_compte, 'name') else str(compte.type_compte)
+                data_comptes.append({
+                    "id": compte.id,
+                    "type": nom_type,
+                    "solde": solde_formate
+                })
+            return data_comptes
+    
+def gerer_operation_espece(compte_id, montant, type_operation: TypeOperation) : #enum de la classe opération: DEPOT = 0 /RETRAIT=1
     solde_init  = (Compte.obtenir(compte_id)).solde()
     match type_operation.value :
         case 0 :

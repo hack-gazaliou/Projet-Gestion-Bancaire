@@ -8,8 +8,8 @@ from enum import Enum
 from Modele.Compte import Compte, TypeCompte, Decouvert
 from Modele.Operation import Operation, TypeOperation
 from Modele.SQLManager import SessionLocal
-#from Modele.Class_SQL.Customer_SQL import Customer as CustomerSQL
-#from Modele.Customer import Customer 
+from Modele.SQL.Customer_SQL import Customer as CustomerSQL
+from Modele.Customer import Customer 
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), 'src')))
 

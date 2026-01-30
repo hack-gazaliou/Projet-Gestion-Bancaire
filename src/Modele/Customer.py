@@ -77,7 +77,7 @@ class Customer:
                 f"Échec de la sauvegarde SQL : {database_error}"
             ) from database_error
 
-    def __synchro_id_from_storage__(self, customer_storage_model: CustomerSQL):
+    def _synchro_id_from_storage_(self, customer_storage_model: CustomerSQL):
         """Met à jour l'ID de l'objet Customer avec celui généré par la BDD"""
         self.customer_id = customer_storage_model.customer_id
 

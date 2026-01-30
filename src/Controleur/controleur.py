@@ -41,8 +41,17 @@ def get_tous_les_clients(self):#Récupère la liste (ID, Nom, Prénom) pour la s
             })   
         return liste_affichage
 
-def ajouter_compte_client(client_id, type_compte :TypeCompte, solde_initial):
-    Compte.creer(client_id, type_compte, solde_initial) #il faut qu'on ajoute l'id client mais pour l'instant il n'est pas en param de creer
+def ajouter_compte_client(self, client_id, type_compte, solde_initial):
+    with SessionLocal() as session:
+        # Vérification optionnelle : est-ce que ce client existe ?
+        client = Customer.obtain(session, client_id)
+        if not client:
+            return False, "Client introuvable."
+        try:
+            Compte.creer(client_id, type_compte, solde_initial)
+            return True, "Compte créé avec succès."
+        except Exception as e:
+            return False, f"Erreur lors de la création : {e}"
 
 def get_comptes_client(self, client_id)->dict: #Récupère la liste des comptes d'un client et calcule leurs soldes à la volée.
         with SessionLocal() as session:

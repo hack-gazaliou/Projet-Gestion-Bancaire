@@ -1,5 +1,5 @@
 from Modele.SQLManager import Base
-from sqlalchemy import Column, Integer, String, Date
+from sqlalchemy import Column, Integer, String
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -16,7 +16,6 @@ class Customer(Base):
     phone = Column(String(12), nullable = False)
     email = Column(String(50), nullable = False)
     card_number = Column(String(16), nullable=False)
-    expire_date = Column(Date, nullable=False)
     address = Column(String(200))
 
 
@@ -35,12 +34,12 @@ class Customer(Base):
 
         personal = CustomerPersonalInfo(self.first_name, self.last_name)
         contact = CustomerContactInfo(self.phone, self.email)
-        card = CustomerCardInfo(self.card_number, self.expire_date)
+        card = CustomerCardInfo(self.card_number)
 
         return Customer(
             personal_info=personal,
             contact_info=contact,
             card_info=card,
-            address=self.adress,
+            address=self.address,
             customer_id=self.customer_id
         )

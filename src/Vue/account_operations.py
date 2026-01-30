@@ -1,5 +1,12 @@
-from PySide6.QtWidgets import (QDialog, QVBoxLayout, QFormLayout, QLineEdit,
-                               QDialogButtonBox, QLabel, QMessageBox)
+from PySide6.QtWidgets import (
+    QDialog,
+    QVBoxLayout,
+    QFormLayout,
+    QLineEdit,
+    QDialogButtonBox,
+    QLabel,
+    QMessageBox,
+)
 from PySide6.QtCore import Qt
 import VuePrincipale
 
@@ -29,18 +36,32 @@ def show_create_client_popup(main_window):
     buttons = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
     layout.addWidget(buttons)
 
-    buttons.accepted.connect(lambda: create_client(main_window, prenom_input, nom_input, tel_input,
-                                                    email_input, date_input, adresse_input, dialog))
+    buttons.accepted.connect(
+        lambda: create_client(
+            main_window,
+            prenom_input,
+            nom_input,
+            tel_input,
+            email_input,
+            date_input,
+            adresse_input,
+            dialog,
+        )
+    )
     buttons.rejected.connect(dialog.reject)
 
     dialog.exec()
 
 
 def show_modify_client_popup(main_window):
-    selected_item = main_window.selected_user 
+    selected_item = main_window.selected_user
 
     if not selected_item:
-        QMessageBox.warning(main_window, "Aucun client sélectionné", "Veuillez sélectionner un client à modifier.")
+        QMessageBox.warning(
+            main_window,
+            "Aucun client sélectionné",
+            "Veuillez sélectionner un client à modifier.",
+        )
         return
 
     client_id = selected_item.data(Qt.UserRole)
@@ -71,27 +92,55 @@ def show_modify_client_popup(main_window):
     buttons = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
     layout.addWidget(buttons)
 
-    buttons.accepted.connect(lambda: modify_client(main_window, prenom_input, nom_input, tel_input,
-                                                    email_input, date_input, adresse_input, dialog))
+    buttons.accepted.connect(
+        lambda: modify_client(
+            main_window,
+            prenom_input,
+            nom_input,
+            tel_input,
+            email_input,
+            date_input,
+            adresse_input,
+            dialog,
+        )
+    )
     buttons.rejected.connect(dialog.reject)
 
     dialog.exec()
 
 
-
-
-def create_client(main_window, prenom_input, nom_input, tel_input,
-                   email_input, date_input, adresse_input, dialog):
+def create_client(
+    main_window,
+    prenom_input,
+    nom_input,
+    tel_input,
+    email_input,
+    date_input,
+    adresse_input,
+    dialog,
+):
     prenom = prenom_input.text().strip()
     nom = nom_input.text().strip()
     if not prenom or not nom:
-        QMessageBox.warning(dialog, "Champs manquants", "Le prénom et le nom sont obligatoires.")
+        QMessageBox.warning(
+            dialog, "Champs manquants", "Le prénom et le nom sont obligatoires."
+        )
         return
     dialog.reject()
-    #TODO enregistrer le nouveau client dans la base de données et refresh la liste
+    # TODO enregistrer le nouveau client dans la base de données et refresh la liste
     main_window.reload_client_list()
 
-def modify_client(main_window, prenom_input, nom_input, tel_input, email_input, date_input, adresse_input, dialog):
+
+def modify_client(
+    main_window,
+    prenom_input,
+    nom_input,
+    tel_input,
+    email_input,
+    date_input,
+    adresse_input,
+    dialog,
+):
     dialog.reject()
     print("TODO")
 
@@ -103,5 +152,5 @@ def getInfos(client_id):
         "prenom": "Bliard",
         "telephone": "0123456789",
         "email": "sacha.bliard@example.com",
-        "adresse": "1 rue Exemple, 75100 Strasbourg"
+        "adresse": "1 rue Exemple, 75100 Strasbourg",
     }

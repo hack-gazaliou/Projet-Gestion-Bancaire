@@ -3,8 +3,19 @@ import os
 import operations
 import account_operations
 
-from PySide6.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout, 
-                               QHBoxLayout, QLineEdit, QPushButton, QListWidget, QLabel, QToolBar, QListWidgetItem)
+from PySide6.QtWidgets import (
+    QApplication,
+    QMainWindow,
+    QWidget,
+    QVBoxLayout,
+    QHBoxLayout,
+    QLineEdit,
+    QPushButton,
+    QListWidget,
+    QLabel,
+    QToolBar,
+    QListWidgetItem,
+)
 from PySide6.QtGui import QAction
 from PySide6.QtCore import Qt
 
@@ -16,16 +27,18 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("Barre latérale fixe - PySide6")
         self.resize(800, 500)
 
-        self.selected_user = None 
+        self.selected_user = None
 
         self.right_panel_widget = QWidget()
         self.right_panel_widget.setStyleSheet("background-color: white;")
         self.right_panel_layout = QVBoxLayout(self.right_panel_widget)
-        self.right_panel_layout.addWidget(QLabel("Sélectionnez un client ou une action."))
+        self.right_panel_layout.addWidget(
+            QLabel("Sélectionnez un client ou une action.")
+        )
 
         self.createToolBar()
 
-        content_area = QWidget() 
+        content_area = QWidget()
         self.setCentralWidget(content_area)
         self.content_layout = QHBoxLayout(content_area)
 
@@ -34,19 +47,17 @@ class MainWindow(QMainWindow):
         self.content_layout.addLayout(self.side_client_bar, 1)
         self.content_layout.addWidget(self.right_panel_widget, 4)
 
-
     def filtrer_clients(self):
         texte_recherche = self.barre_recherche_client.text().lower()
         for i in range(self.client_list.count()):
             item = self.client_list.item(i)
-            if item: 
+            if item:
                 correspondance = item.text().lower().startswith(texte_recherche)
                 item.setHidden(not correspondance)
 
-
     def createToolBar(self):
         toolbar = self.addToolBar("Menu Principal")
-        toolbar.setMovable(False) 
+        toolbar.setMovable(False)
 
         action_comptes = QAction("Comptes", self)
         action_comptes.triggered.connect(lambda: self.show_account(self.selected_user))
@@ -65,9 +76,10 @@ class MainWindow(QMainWindow):
         toolbar.addAction(action_retrait)
 
         action_modif = QAction("Modifier infos", self)
-        action_modif.triggered.connect(lambda: account_operations.show_modify_client_popup(self))
+        action_modif.triggered.connect(
+            lambda: account_operations.show_modify_client_popup(self)
+        )
         toolbar.addAction(action_modif)
-
 
     def createSideClientBar(self):
         sidebar_layout = QVBoxLayout()
@@ -99,14 +111,16 @@ class MainWindow(QMainWindow):
         sidebar_layout.addWidget(self.client_list)
 
         self.bouton_create_new_client = QPushButton("Créer un client")
-        self.bouton_create_new_client.clicked.connect(lambda: account_operations.show_create_client_popup(self))
+        self.bouton_create_new_client.clicked.connect(
+            lambda: account_operations.show_create_client_popup(self)
+        )
         sidebar_layout.addWidget(self.bouton_create_new_client)
 
         return sidebar_layout
 
     def reload_client_list(self):
         """Recharge la liste des clients depuis 'get_customer_list', vide le filtre et réinitialise la sélection."""
-        self.barre_recherche_client.clear() 
+        self.barre_recherche_client.clear()
         self.selected_user = None
 
         self.client_list.clear()
@@ -117,14 +131,16 @@ class MainWindow(QMainWindow):
             self.client_list.addItem(item)
 
     def show_account(self, item):
-        self.selected_user = item # mise à jour de l'utilisateur sélectionné
+        self.selected_user = item  # mise à jour de l'utilisateur sélectionné
         if not self.selected_user:
             operations.show_selection_error(self)
             return
 
-        nom_client = QLabel(f"<b>Détails - {item.text()}, id = {item.data(Qt.UserRole)}</b>")
+        nom_client = QLabel(
+            f"<b>Détails - {item.text()}, id = {item.data(Qt.UserRole)}</b>"
+        )
         comptes = QLabel(f"Informations du client :\n\nComptes: Courant, PEL, Livret A")
-        
+
         new_zone_droite_widget = QWidget()
         new_zone_droite_widget.setStyleSheet("background-color: white;")
 
@@ -132,20 +148,22 @@ class MainWindow(QMainWindow):
         new_zone_droite_layout.addWidget(nom_client)
         new_zone_droite_layout.addWidget(comptes)
         new_zone_droite_layout.addStretch()
-            
-        self.content_layout.replaceWidget(self.right_panel_widget, new_zone_droite_widget)
+
+        self.content_layout.replaceWidget(
+            self.right_panel_widget, new_zone_droite_widget
+        )
         self.right_panel_widget.deleteLater()
         self.right_panel_widget = new_zone_droite_widget
-
 
     def get_customer_list(self) -> list:
         return [
             {"id": 101, "nom": "Client 1"},
             {"id": 102, "nom": "Sacha Bliard"},
             {"id": 103, "nom": "Antoine Augustin"},
-            {"id": 104, "nom": "Sacha Bliard"}, 
-            {"id": 105, "nom": "Hack Gazaliou"}
+            {"id": 104, "nom": "Sacha Bliard"},
+            {"id": 105, "nom": "Hack Gazaliou"},
         ]
+
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

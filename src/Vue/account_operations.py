@@ -40,7 +40,7 @@ def show_create_client_popup(main_window):
     buttons = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
     layout.addWidget(buttons)
 
-    buttons.accepted.connect(lambda: _create_client(main_window, prenom_input, nom_input, tel_input,
+    buttons.accepted.connect(lambda: (main_window, prenom_input, nom_input, tel_input,
                                                     email_input, date_input, adresse_input, dialog))
     buttons.rejected.connect(dialog.reject)
 
@@ -81,31 +81,9 @@ def show_modify_client_popup(main_window):
     buttons = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
     layout.addWidget(buttons)
 
-    def accept():
-        # Mettre à jour l'entrée dans main_window.db_clients
-        for client in main_window.db_clients:
-            if client.get("id") == client_id:
-                prenom = prenom_input.text().strip()
-                nom = nom_input.text().strip()
-                client["prenom"] = prenom
-                client["nom_propre"] = nom
-                client["nom"] = f"{prenom} {nom}".strip() or nom or prenom or client.get("nom", "Client")
-                client["telephone"] = tel_input.text().strip()
-                client["email"] = email_input.text().strip()
-                client["date_exp"] = date_input.text().strip()
-                client["adresse"] = adresse_input.text().strip()
-                break
-
-        main_window.reload_client_list()
-        dialog.accept()
-
-    buttons.accepted.connect(accept)
-    buttons.rejected.connect(dialog.reject)
-
-    dialog.exec()
 
 
-def _create_client(main_window, prenom_input, nom_input, tel_input,
+def create_client(main_window, prenom_input, nom_input, tel_input,
                    email_input, date_input, adresse_input, dialog):
     prenom = prenom_input.text().strip()
     nom = nom_input.text().strip()

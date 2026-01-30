@@ -104,7 +104,7 @@ class MainWindow(QMainWindow):
         return sidebar_layout
 
     def reload_client_list(self):
-        """Recharge la liste des clients depuis `get_customer_list`, vide le filtre et réinitialise la sélection."""
+        """Recharge la liste des clients depuis 'get_customer_list', vide le filtre et réinitialise la sélection."""
         self.barre_recherche_client.clear() 
         self.selected_user = None
 

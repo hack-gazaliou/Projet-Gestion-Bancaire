@@ -35,8 +35,8 @@ jobs:
           key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
       - name: Format code with Black
         run: |
-          black .
           source .venv/bin/activate
+          black .
       - name: Commit changes
         uses: stefanzweifel/git-auto-commit-action@v5
         with:

@@ -1,4 +1,4 @@
-from Modele.SQLManager import Base
+from Modele.SQL.SQLManager import Base
 from sqlalchemy import Column, Integer, String
 from typing import TYPE_CHECKING
 

@@ -1,0 +1,104 @@
+name: Lint, test and build project
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: write
+
+jobs:
+  format:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{ github.head_ref }}
+      - name: Set up Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: 3.11
+      - name: Install dependencies
+        run: |
+          python -m venv .venv
+          source .venv/bin/activate
+          python -m pip install --upgrade pip
+          pip install -e .
+          pip install -r requirements.txt
+          pip install black
+      - name: Put the virtual environnement in cache
+        uses: actions/cache@v3
+        with:
+          path: .venv
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+      - name: Format code with Black
+        run: |
+          source .venv/bin/activate
+          black .
+      - name: Commit changes
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "style: auto-format code with black"
+  lint:
+    runs-on: ubuntu-latest
+    needs: format
+    steps:
+    - name: get code
+      uses: actions/checkout@v4
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v3
+      with:
+        python-version: 3.11
+    - name: Cache dependencies
+      uses: actions/cache@v3
+      with:
+        path: .venv
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+    - name: Install dependencies
+      run: |
+        python -m venv .venv
+        source .venv/bin/activate
+        python -m pip install --upgrade pip
+        pip install -e .
+        pip install -r requirements.txt
+    - name: Analysing the code with pylint
+      run: |
+        source .venv/bin/activate
+        pylint $(git ls-files '*.py')
+  test:
+      runs-on: ubuntu-latest
+      needs : lint
+      steps:
+      - name: execute unitary and coverage tests
+        uses: actions/checkout@v4
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v3
+        with:
+          python-version: 3.11
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        with:
+          path: .venv
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+      - name: Install dependencies
+        run: |
+          python -m venv .venv
+          source .venv/bin/activate
+          python -m pip install --upgrade pip
+          pip install -e .
+          pip install -r requirements.txt
+      - name: Run test
+        run: |
+          source .venv/bin/activate
+          pytest
+          pytest --cov=. --cov-report=html --cov-report html:./coverage_report.html
+  build:
+      needs : test
+      uses: ./.github/workflows/build_project.yml 
+      with: 
+        python-version: 3.11

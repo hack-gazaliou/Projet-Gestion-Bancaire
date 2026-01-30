@@ -1,46 +1,39 @@
-from sqlalchemy import Column, Integer, Float, ForeignKey, DateTime
-from Modele.SQLManager import Base, SessionLocal
 from datetime import datetime
+from Modele.SQL.SQLComptes import SQLCompte
+from Modele.SQL.SQLOperations import SQLOperation
+import logging
 
-class Operation(Base):
-    __tablename__ = 'operations'
+logger = logging.getLogger(__name__)
 
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    # On lie à l'ID de la table 'comptes'
-    id_compte_source = Column(Integer, ForeignKey('comptes.id'), nullable=False)
-    id_compte_cible = Column(Integer, ForeignKey('comptes.id'), nullable=False)
-    montant = Column(Float, nullable=False)
-    date_operation = Column(DateTime, default=datetime.now)
 
-    @classmethod
-    def transferer(cls, source_id, cible_id, montant):
+class Operation:
+    def __init__(
+        self, id_source_account: int, id_target_account: int, amount: int
+    ) -> None:
+        self.id_source_account = id_source_account
+        self.id_target_account = id_target_account
+        self.amount = amount
+        self.date_operation = datetime.now()
+        self.id = 0
+
+    def execute(self) -> None:
         """
-        Crée une opération et met à jour les soldes des deux comptes.
+        Execute the operation
         """
-        with SessionLocal() as session:
-            from Modele.Compte import Compte # Import local pour éviter les imports circulaires
-            
-            source = session.query(Compte).get(source_id)
-            cible = session.query(Compte).get(cible_id)
-
-            if not source or not cible:
-                print("Erreur : L'un des comptes n'existe pas.")
-                return None
-
-            # Si montant > 0 : source donne à cible
-            #source.solde -= montant
-            #cible.solde += montant
-
-            nouvelle_op = cls(
-                id_compte_source=source_id,
-                id_compte_cible=cible_id,
-                montant=montant
-            )
-            
-            session.add(nouvelle_op)
-            session.commit()
-            print(f"Transfert de {montant}€ réussi de {source_id} vers {cible_id}.")
-            return nouvelle_op
+        operation = SQLOperation.execute_transfer(
+            self.id_source_account, self.id_target_account, self.amount
+        )
+        if operation is not None:
+            self.id = operation.get_id()
+            self.date_operation = operation.date_operation  # sync the 2 objects
+        else:
+            logger.error("The transfert wasn't committed, please retry")
+            raise OperationException
 
     def __repr__(self):
-        return f"<Operation(id={self.id}, de={self.id_compte_source} vers={self.id_compte_cible}, montant={self.montant}€)>"
+        return f"<Operation(id={self.id}, from={self.id_source_account} to={self.id_target_account}, amount={self.amount}€)>"
+
+
+class OperationException(Exception):
+    def __repr__(self) -> str:
+        return "The operation couldn't be committed to the database please retry"

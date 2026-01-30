@@ -212,10 +212,10 @@ def make_transfer(type_combo, int_dest_combo, ext_client_combo, ext_acc_combo, a
     #TODO, virer l'argent amount_input.text() depuis le compte int_dest_combo ou ext_acc_combo selon interne ou externe vers le compte sélectionné
     pass
 
-def make_deposit(current_user, target_account_combo, amount_input):
+def make_deposit(target_account_combo, amount_input):
     #TODO dans le controleur
     pass
 
-def make_withdraw(current_user, source_account_combo, amount_input):
+def make_withdraw(ource_account_combo, amount_input):
     #TODO dans le controleur
     pass

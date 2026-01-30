@@ -51,6 +51,7 @@ def show_modify_client_popup(main_window):
     layout = QVBoxLayout(dialog)
 
     form = QFormLayout()
+
     prenom_input = QLineEdit(infos.get("prenom", ""))
     nom_input = QLineEdit(infos.get("nom", ""))
     tel_input = QLineEdit(infos.get("telephone", ""))
@@ -102,6 +103,5 @@ def getInfos(client_id):
         "prenom": "Bliard",
         "telephone": "0123456789",
         "email": "sacha.bliard@example.com",
-        "date_exp": "2026-12-31",
         "adresse": "1 rue Exemple, 75100 Strasbourg"
     }

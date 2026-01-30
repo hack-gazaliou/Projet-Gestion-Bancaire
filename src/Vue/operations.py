@@ -1,6 +1,7 @@
 from functools import partial
 from PySide6.QtWidgets import (QWidget, QVBoxLayout, QLabel, QLineEdit, 
-                               QPushButton, QComboBox, QFormLayout)
+                               QPushButton, QComboBox, QFormLayout,QMessageBox)
+from PySide6.QtGui import QIntValidator
 from PySide6.QtCore import Qt
 
 def update_right_panel(main_window, new_widget):
@@ -72,14 +73,14 @@ def show_transfer(main_window):
     transfer_type_combo = QComboBox()
     transfer_type_combo.addItems(["Virement Interne", "Virement Externe"])
     
-    source_account_combo = QComboBox()
+    source_customer_account_combo = QComboBox()
     for acc in get_account_list(current_user):
-        source_account_combo.addItem(acc["nom"], acc["id"])
+        source_customer_account_combo.addItem(acc["nom"], acc["id"])
 
     internal_dest_label = QLabel("Compte crédité :")
-    internal_dest_combo = QComboBox()
+    dest_customer_account_combo = QComboBox()
     for acc in get_account_list(current_user):
-        internal_dest_combo.addItem(acc["nom"], acc["id"])
+        dest_customer_account_combo.addItem(acc["nom"], acc["id"])
 
     external_client_label = QLabel("Bénéficiaire :")
     external_client_combo = QComboBox()
@@ -89,6 +90,8 @@ def show_transfer(main_window):
 
     amount_input = QLineEdit()
     amount_input.setPlaceholderText("0.00 €")
+    int_validator = QIntValidator(0, 9999, amount_input)#10 000 euros max A CONVERTIR EN CENTIMES
+    amount_input.setValidator(int_validator)
     
     submit_button = QPushButton("Exécuter le virement")
 
@@ -99,9 +102,9 @@ def show_transfer(main_window):
         external_client_combo.addItem(client["nom"], client["id"])
 
     form_layout.addRow("<b>Type de virement :</b>", transfer_type_combo)
-    form_layout.addRow("Compte débité :", source_account_combo)
+    form_layout.addRow("Compte débité :", source_customer_account_combo)
     
-    form_layout.addRow(internal_dest_label, internal_dest_combo)
+    form_layout.addRow(internal_dest_label, dest_customer_account_combo)
     form_layout.addRow(external_client_label, external_client_combo)
     form_layout.addRow(external_account_label, external_account_combo)
     form_layout.addRow("Montant :", amount_input)
@@ -111,7 +114,7 @@ def show_transfer(main_window):
     main_layout.addStretch()
     
     # On groupe les widgets pour les passer facilement à la fonction
-    internal_widgets = [internal_dest_label, internal_dest_combo]
+    internal_widgets = [internal_dest_label, dest_customer_account_combo]
     external_widgets = [external_client_label, external_client_combo, 
                         external_account_label, external_account_combo]
 
@@ -125,8 +128,7 @@ def show_transfer(main_window):
     )
 
     submit_button.clicked.connect(
-        lambda: make_transfer(transfer_type_combo, internal_dest_combo, 
-                                   external_client_combo, external_account_combo, amount_input)
+        lambda: prepare_transfer(main_window,transfer_type_combo, source_customer_account_combo, dest_customer_account_combo,external_account_combo, amount_input)
     )
 
     
@@ -151,20 +153,22 @@ def show_deposit(main_window):
     main_layout.addWidget(QLabel(f"<h2>Effectuer un Dépôt</h2><p>Client : {current_user.text()}</p>"))
 
     form_layout = QFormLayout()
-    target_account_combo = QComboBox()
+    account_combo = QComboBox()
     for acc in get_account_list(current_user):
-        target_account_combo.addItem(acc["nom"], acc["id"])
+        account_combo.addItem(acc["nom"], acc["id"])
     
     amount_input = QLineEdit()
     amount_input.setPlaceholderText("0.00 €")
+    int_validator = QIntValidator(0, 9999, amount_input)#10 000 euros max A CONVERTIR EN CENTIMES
+    amount_input.setValidator(int_validator)
 
-    form_layout.addRow("Vers le compte :", target_account_combo)
+    form_layout.addRow("Vers le compte :", account_combo)
     form_layout.addRow("Montant à déposer :", amount_input)
     
     main_layout.addLayout(form_layout)
 
     submit_button = QPushButton("Valider le dépôt")
-    submit_button.clicked.connect(lambda: make_deposit(current_user, target_account_combo, amount_input))
+    submit_button.clicked.connect(lambda: prepare_deposit(main_window,account_combo, amount_input))
     
     main_layout.addWidget(submit_button)
     main_layout.addStretch()
@@ -185,20 +189,23 @@ def show_retrait(main_window):
     main_layout.addWidget(QLabel(f"<h2>Effectuer un Retrait</h2><p>Client : {current_user.text()}</p>"))
 
     form_layout = QFormLayout()
-    source_account_combo = QComboBox()
+    account_combo = QComboBox()
     for acc in get_account_list(current_user):
-        source_account_combo.addItem(acc["nom"], acc["id"])
+        account_combo.addItem(acc["nom"], acc["id"])
+
     
     amount_input = QLineEdit()
     amount_input.setPlaceholderText("0.00 €")
+    int_validator = QIntValidator(0, 9999, amount_input)#10 000 euros max A CONVERTIR EN CENTIMES
+    amount_input.setValidator(int_validator)
 
-    form_layout.addRow("Depuis le compte :", source_account_combo)
+    form_layout.addRow("Depuis le compte :", account_combo)
     form_layout.addRow("Montant à retirer :", amount_input)
     
     main_layout.addLayout(form_layout)
 
     submit_button = QPushButton("Valider le retrait")
-    submit_button.clicked.connect(lambda: make_withdraw(current_user, source_account_combo, amount_input))
+    submit_button.clicked.connect(lambda: prepare_withdraw(main_window, account_combo, amount_input))
     
     main_layout.addWidget(submit_button)
     main_layout.addStretch()
@@ -208,14 +215,42 @@ def show_retrait(main_window):
 
 
 
-def make_transfer(type_combo, int_dest_combo, ext_client_combo, ext_acc_combo, amount_input):
-    #TODO, virer l'argent amount_input.text() depuis le compte int_dest_combo ou ext_acc_combo selon interne ou externe vers le compte sélectionné
-    pass
 
-def make_deposit(target_account_combo, amount_input):
-    #TODO dans le controleur
-    pass
 
-def make_withdraw(ource_account_combo, amount_input):
-    #TODO dans le controleur
-    pass
+
+def prepare_transfer(main_window,transfer_type_combo, source_customer_account_combo, dest_customer_account_combo,external_account_combo, amount_input):
+    if amount_input.text() == ""  or int(amount_input.text()) == 0 :
+        QMessageBox.warning(main_window, "Montant invalide", "Veuillez entrer un montant strictement positif.")
+        return
+        
+    index_source = source_customer_account_combo.currentIndex()
+    source_account_id=source_customer_account_combo.itemData(index_source)
+
+    transfer_type=transfer_type_combo.currentText()
+    if transfer_type == "Virement Interne":
+        index_dest = dest_customer_account_combo.currentIndex()
+        dest_account_id=dest_customer_account_combo.itemData(index_dest)
+
+        print(f"Virement interne: compte source{source_account_id} compote destinataire{dest_account_id} d'un montant de {int(amount_input.text())*100}")#mult 100 pour passer en centimes
+    elif transfer_type== "Virement Externe":
+        index_dest = external_account_combo.currentIndex()
+        dest_account_id=external_account_combo.itemData(index_dest)
+        print(f"Virement externe: compte source{source_account_id} compote destinataire{dest_account_id}d'un montant de {int(amount_input.text())*100}")
+
+
+def prepare_deposit(main_window,account_combo, amount_input):
+    if amount_input.text() == ""  or int(amount_input.text()) == 0 :
+        QMessageBox.warning(main_window, "Montant invalide", "Veuillez entrer un montant strictement positif.")
+        return
+    index_source = account_combo.currentIndex()
+    account_id=account_combo.itemData(index_source)
+    print(f" compte {account_id} montant{int(amount_input.text())} ")
+
+
+def prepare_withdraw(main_window,account_combo, amount_input):
+    if amount_input.text() == ""  or int(amount_input.text()) == 0 :
+        QMessageBox.warning(main_window, "Montant invalide", "Veuillez entrer un montant strictement positif.")
+        return
+    index_source = account_combo.currentIndex()
+    account_id=account_combo.itemData(index_source)
+    print(f" compte {account_id} montant{int(amount_input.text())*100} ")

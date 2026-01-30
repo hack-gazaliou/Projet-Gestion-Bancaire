@@ -14,19 +14,15 @@ class SQLCompte(Base):
     id_client  = Column(Integer, ForeignKey("customers.id"), nullable=False)
     #solde = Column(Float, default=0.0)
 
-    @property
-    def solde(self) -> ColumnElement[int] | int:
-        """Calcule le solde actuel en sommant toutes les opérations."""
-        with SessionLocal() as session:
-            # Opérations cibles
-            credits = session.query(SQLOperation).filter_by(id_compte_cible=self.id).all()
-            total_credits = sum(op.montant for op in credits)
 
-            # Opérations sources
-            debits = session.query(SQLOperation).filter_by(id_compte_source=self.id).all()
+    @classmethod
+    def get_credits_and_debits(cls, account_id : int | Column[int]) -> tuple[int, int]:
+        with SessionLocal() as session : 
+            credits = session.query(cls).filter_by(id_compte_cible=account_id).all()
+            total_credits = sum(op.montant for op in credits)
+            debits = session.query(SQLOperation).filter_by(id_compte_source=account_id).all()
             total_debits = sum(op.montant for op in debits)
-            return total_credits - total_debits
-        
+            return total_credits, total_debits  # type: ignore
     @classmethod
     def creer(cls, type_enum, id_client, initial_amount : int=0):
         """

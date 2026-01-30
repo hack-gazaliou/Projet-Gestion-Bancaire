@@ -5,12 +5,11 @@ from PySide6.QtCore import Qt
 
 def update_right_panel(main_window, new_widget):
     """Fonction utilitaire pour remplacer le widget de droite."""
-    # Le widget de droite dans la fenêtre principale est nommé `right_panel_widget`
     main_window.content_layout.replaceWidget(main_window.right_panel_widget, new_widget)
     main_window.right_panel_widget.deleteLater()
     main_window.right_panel_widget = new_widget
 
-def _show_selection_error(main_window):
+def show_selection_error(main_window):
     """Affiche une erreur si aucun client n'est sélectionné."""
     error_widget = QWidget()
     error_widget.setStyleSheet("background-color: #ffe6e6;") 
@@ -25,7 +24,7 @@ def _show_selection_error(main_window):
     
     update_right_panel(main_window, error_widget)
 
-def _get_account_list(client_item=None):
+def get_account_list(client_item=None):
     return [
             {"id": 101, "nom": "Compte Courant"},
             {"id": 102, "nom": "Livret A"},
@@ -47,7 +46,7 @@ def on_external_client_changed(ext_client_combo, ext_account_combo):
     """Met à jour la liste des comptes quand on change de client bénéficiaire."""
     ext_account_combo.clear()
     client_id = ext_client_combo.currentData()
-    accounts = _get_account_list(client_id)
+    accounts = get_account_list(client_id)
     for acc in accounts:
         ext_account_combo.addItem(acc["nom"], acc["id"])  
 
@@ -59,7 +58,7 @@ def show_transfer(main_window):
     current_user = main_window.selected_user
     
     if not current_user:
-        _show_selection_error(main_window)
+        show_selection_error(main_window)
         return
 
     container_widget = QWidget()
@@ -74,12 +73,12 @@ def show_transfer(main_window):
     transfer_type_combo.addItems(["Virement Interne", "Virement Externe"])
     
     source_account_combo = QComboBox()
-    for acc in _get_account_list(current_user):
+    for acc in get_account_list(current_user):
         source_account_combo.addItem(acc["nom"], acc["id"])
 
     internal_dest_label = QLabel("Compte crédité :")
     internal_dest_combo = QComboBox()
-    for acc in _get_account_list(current_user):
+    for acc in get_account_list(current_user):
         internal_dest_combo.addItem(acc["nom"], acc["id"])
 
     external_client_label = QLabel("Bénéficiaire :")
@@ -142,7 +141,7 @@ def show_transfer(main_window):
 def show_deposit(main_window):
     current_user = main_window.selected_user
     if not current_user:
-        _show_selection_error(main_window)
+        show_selection_error(main_window)
         return
 
     container_widget = QWidget()
@@ -153,7 +152,7 @@ def show_deposit(main_window):
 
     form_layout = QFormLayout()
     target_account_combo = QComboBox()
-    for acc in _get_account_list(current_user):
+    for acc in get_account_list(current_user):
         target_account_combo.addItem(acc["nom"], acc["id"])
     
     amount_input = QLineEdit()
@@ -176,7 +175,7 @@ def show_deposit(main_window):
 def show_retrait(main_window):
     current_user = main_window.selected_user
     if not current_user:
-        _show_selection_error(main_window)
+        show_selection_error(main_window)
         return
 
     container_widget = QWidget()
@@ -187,7 +186,7 @@ def show_retrait(main_window):
 
     form_layout = QFormLayout()
     source_account_combo = QComboBox()
-    for acc in _get_account_list(current_user):
+    for acc in get_account_list(current_user):
         source_account_combo.addItem(acc["nom"], acc["id"])
     
     amount_input = QLineEdit()

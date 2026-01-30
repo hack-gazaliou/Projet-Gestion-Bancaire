@@ -1,9 +1,7 @@
 import sys
 import os
-# --- IMPORT DU NOUVEAU MODULE ---
 import operations
 import account_operations
-# --------------------------------
 
 from PySide6.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout, 
                                QHBoxLayout, QLineEdit, QPushButton, QListWidget, QLabel, QToolBar, QListWidgetItem)
@@ -118,25 +116,26 @@ class MainWindow(QMainWindow):
             self.client_list.addItem(item)
 
     def show_account(self, item):
-        if item:
-            self.selected_user = item # mise à jour de l'utilisateur sélectionné
-            
-            nom_client = QLabel(f"<b>Détails - {item.text()}, id = {item.data(Qt.UserRole)}</b>")
-            comptes = QLabel(f"Informations du client :\n\nComptes: Courant, PEL, Livret A")
-        
-            new_zone_droite_widget = QWidget()
-            new_zone_droite_widget.setStyleSheet("background-color: white;")
+        self.selected_user = item # mise à jour de l'utilisateur sélectionné
+        if not self.selected_user:
+            operations.show_selection_error(self)
+            return
 
-            new_zone_droite_layout = QVBoxLayout(new_zone_droite_widget)
-            new_zone_droite_layout.addWidget(nom_client)
-            new_zone_droite_layout.addWidget(comptes)
-            new_zone_droite_layout.addStretch()
+        nom_client = QLabel(f"<b>Détails - {item.text()}, id = {item.data(Qt.UserRole)}</b>")
+        comptes = QLabel(f"Informations du client :\n\nComptes: Courant, PEL, Livret A")
+        
+        new_zone_droite_widget = QWidget()
+        new_zone_droite_widget.setStyleSheet("background-color: white;")
+
+        new_zone_droite_layout = QVBoxLayout(new_zone_droite_widget)
+        new_zone_droite_layout.addWidget(nom_client)
+        new_zone_droite_layout.addWidget(comptes)
+        new_zone_droite_layout.addStretch()
             
-            self.content_layout.replaceWidget(self.right_panel_widget, new_zone_droite_widget)
-            self.right_panel_widget.deleteLater()
-            self.right_panel_widget = new_zone_droite_widget
-        else:
-            pass
+        self.content_layout.replaceWidget(self.right_panel_widget, new_zone_droite_widget)
+        self.right_panel_widget.deleteLater()
+        self.right_panel_widget = new_zone_droite_widget
+
 
     def get_customer_list(self) -> list:
         return [

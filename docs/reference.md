@@ -8,31 +8,31 @@ Cette page regroupe la documentation technique générée automatiquement à par
 Le cœur logique et les entités de l'application.
 
 ### Entités principales
-::: src.Modele.Compte
-::: src.Modele.Customer
-::: src.Modele.Operation
+::: Modele.Compte
+::: Modele.Customer
+::: Modele.Operation
 
 ### Accès aux données (SQL)
 Ces modules gèrent la persistance avec la base de données.
 
-::: src.Modele.SQL.SQLManager
-::: src.Modele.SQL.DBSetup
-::: src.Modele.SQL.SQLComptes
-::: src.Modele.SQL.SQLCustomer
-::: src.Modele.SQL.SQLOperations
+::: Modele.SQL.SQLManager
+::: Modele.SQL.DBSetup
+::: Modele.SQL.SQLComptes
+::: Modele.SQL.SQLCustomer
+::: Modele.SQL.SQLOperations
 
 ---
 
 ## Contrôleur (Controleur)
 Le lien entre le Modèle et la Vue.
 
-::: src.Controleur
+::: Controleur
 
 ---
 
 ## Vue (Vue)
 L'interface utilisateur graphique.
 
-::: src.Vue.VuePrincipale
-::: src.Vue.operations
-::: src.Vue.account_operations
+::: Vue.VuePrincipale
+::: Vue.operations
+::: Vue.account_operations

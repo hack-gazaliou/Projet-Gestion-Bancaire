@@ -106,8 +106,8 @@ jobs:
       name: Generate and Deploy Documentation
       runs-on: ubuntu-latest
       permissions:
-      contents: write
-      pull-requests: write
+        contents: write
+        pull-requests: write
       needs: [format]
       # S'exécute si c'est un push sur main OU si c'est une PR vers main
       if: |

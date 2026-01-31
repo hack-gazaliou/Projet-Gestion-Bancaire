@@ -1,6 +1,3 @@
-# Quick Start guide
-This section is not ready yet
-
 # Référence technique de l'API
 
 Cette page regroupe la documentation technique générée automatiquement à partir des docstrings du projet.

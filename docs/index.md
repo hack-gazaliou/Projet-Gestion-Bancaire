@@ -3,6 +3,8 @@
 
 # Système de Gestion Bancaire
 
+## Description
+
 Welcome to the  documentation for the **Banking Management** project. This application allows you to manage accounts and customers and perform internal and external financial transactions.
 ---
 

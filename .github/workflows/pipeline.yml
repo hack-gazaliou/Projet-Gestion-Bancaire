@@ -106,16 +106,17 @@ jobs:
       name: Generate and Deploy Documentation
       runs-on: ubuntu-latest
       needs: [format]
-      # S'exécute toujours sur main, même si le lint/test échoue
+      # S'exécute si c'est un push sur main OU si c'est une PR vers main
       if: |
         always() && 
-        github.ref == 'refs/heads/main' && 
+        (github.event_name == 'pull_request' || github.ref == 'refs/heads/main') &&
         needs.format.result == 'success'
+      
       steps:
         - name: Checkout repository code
           uses: actions/checkout@v4
           with:
-            fetch-depth: 0 # Important pour que MkDocs puisse lire l'historique si besoin
+            fetch-depth: 0
 
         - name: Set up Python 3.11
           uses: actions/setup-python@v4
@@ -132,13 +133,30 @@ jobs:
           run: |
             python -m venv .venv
             source .venv/bin/activate
-            python -m pip install --upgrade pip
-            # Installation du projet et des outils de doc
             pip install . mkdocs-material mkdocstrings[python]
-            if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
-        - name: Build and Publish Documentation to GitHub Pages
+        - name: Build Only (Dry Run for PR)
+          if: github.event_name == 'pull_request'
           run: |
             source .venv/bin/activate
-            # La commande gh-deploy construit le HTML et le pousse sur la branche gh-pages
+            mkdocs build # Vérifie juste que la doc compile sans erreur
+
+        - name: Build and Publish (Only on Main)
+          if: github.ref == 'refs/heads/main'
+          run: |
+            source .venv/bin/activate
             mkdocs gh-deploy --force
+        - name: Upload Documentation Preview
+          if: github.event_name == 'pull_request'
+          uses: actions/upload-artifact@v4
+          with:
+            name: docs-preview-${{ github.event.pull_request.number }}
+            path: ./site_preview/
+        - name: Comment PR with Doc Status
+          if: github.event_name == 'pull_request' && always()
+          uses: thollander/actions-comment-pull-request@v2
+          with:
+            message: |
+              **Documentation Status** : 
+              - Build success ! 
+              - The preview is available in the Artifacts of the action.

@@ -1,7 +1,7 @@
+# Système de Gestion Bancaire
+
 !!! info "Project status"
     The project is currently at version **0.1.0**. It is still under development.
-
-# Système de Gestion Bancaire
 
 ## Description
 

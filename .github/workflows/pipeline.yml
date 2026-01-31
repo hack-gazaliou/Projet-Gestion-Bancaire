@@ -142,6 +142,7 @@ jobs:
           if: github.event_name == 'pull_request'
           run: |
             source .venv/bin/activate
+            export PYTHONPATH=$PYTHONPATH:$(pwd)/src
             mkdocs build # Vérifie juste que la doc compile sans erreur
 
         - name: Build and Publish (Only on Main)
@@ -161,5 +162,5 @@ jobs:
           with:
             message: |
               **Documentation Status** : 
-              - Build success ! 
-              - The preview is available in the Artifacts of the action.
+              - ${{ job.status == 'success' && 'Build success !' || 'Build failed.' }}
+              - ${{ job.status == 'success' && 'The preview is available in the Artifacts of the action.' || 'Please retry later.' }}

@@ -1,0 +1,19 @@
+site_name: Documentation Projet Bancaire
+theme:
+  name: material
+
+plugins:
+  - mkdocstrings:
+      handlers:
+        python:
+          paths: [src]
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+
+nav:
+  - Home page: index.md
+  - API References: reference.md
+  - How to use it: guide.md

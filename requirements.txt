@@ -44,3 +44,5 @@ tomli==2.0.1
 tomlkit==0.13.3
 tzdata==2025.3
 virtualenv==20.35.4
+mkdocstrings[python]>=0.18
+mkdocs-material

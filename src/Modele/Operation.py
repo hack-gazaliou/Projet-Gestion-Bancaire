@@ -46,20 +46,21 @@ class Operation:
         """
         self._id = new_id
     @classmethod
-    def get_account_history(cls, account_id: int) -> list['Operation']:
+    def get_account_history(cls, account_id: int) -> list["Operation"]:
         """Gives all the transactions associated with an account"""
         sql_ops = SQLOperation.get_by_account(account_id)
         history = []
         for sql_op in sql_ops:
             op = cls(
-                id_source_account=sql_op.id_compte_source, #type: ignore
-                id_target_account=sql_op.id_compte_cible, #type: ignore
-                amount=sql_op.montant #type: ignore
+                id_source_account=sql_op.id_compte_source,  # type: ignore
+                id_target_account=sql_op.id_compte_cible,  # type: ignore
+                amount=sql_op.montant,  # type: ignore
             )
             op._id = sql_op.id
             op.date_operation = sql_op.date_operation
             history.append(op)
         return history
+
     def __repr__(self):
         return f"""<Operation(id={self._id},
                 from={self.id_source_account}

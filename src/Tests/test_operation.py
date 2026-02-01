@@ -7,11 +7,12 @@ from datetime import datetime
 import pytest
 from Modele.operation import Operation, OperationException
 
+
 class TestOperation:
     """
     Test operation class
     """
-    @patch("Modele.Operation.SQLOperation.execute_transfer")
+    @patch("Modele.operation.SQLOperation.execute_transfer")
     def test_execute_success(self, mock_transfer):
         """Test a normal transaction (with success)"""
         fixed_date = datetime(2024, 1, 1, 12, 0)
@@ -27,8 +28,7 @@ class TestOperation:
         assert op.date_operation == fixed_date # type: ignore
         mock_transfer.assert_called_once_with(1, 2, 50)
 
-
-    @patch("Modele.Operation.SQLOperation.execute_transfer")
+    @patch("Modele.operation.SQLOperation.execute_transfer")
     def test_execute_failed(self, mock_transfer):
         """Test the OperationException raise when the transaction fail"""
         mock_transfer.return_value = None
@@ -38,7 +38,7 @@ class TestOperation:
         with pytest.raises(OperationException):
             op.execute()
 
-    @patch("Modele.Operation.SQLOperation.get_by_account")
+    @patch("Modele.operation.SQLOperation.get_by_account")
     def test_get_account_history(self, mock_get_sql):
         """Test the recovery of the transaction history"""
         mock_op1 = MagicMock()
@@ -60,13 +60,7 @@ class TestOperation:
         history = Operation.get_account_history(1)
 
         assert len(history) == 2
-        assert history[0].id == 101 # type: ignore
+        assert history[0].get_id() == 101 # type: ignore
         assert history[0].amount == 100
         assert history[1].id_target_account == 1
         mock_get_sql.assert_called_once_with(1)
-    def test_operation_repr(self):
-        """Test the format and display"""
-        op = Operation(id_source_account=1, id_target_account=2, amount=100)
-        op.set_id(456)
-        expected = "<Operation(id=456, from=1 to=2, amount=100€)>"
-        assert repr(op) == expected

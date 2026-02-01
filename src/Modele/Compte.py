@@ -3,11 +3,10 @@ Account Management Module.
 Handles controller to database link for accounts.
 """
 import logging
-from Modele.TypeCompte import TypeCompte
+from Modele.type_compte import TypeCompte
 from Modele.SQL.sql_comptes import SQLCompte
 
 logger = logging.getLogger(__name__)
-
 
 
 class Compte:
@@ -15,9 +14,11 @@ class Compte:
     Represents a bank account.
     """
     def __init__(
-        self, account_id: int | None, type_compte: TypeCompte,
+        self,
+        account_id: int | None,
+        type_compte: TypeCompte,
         id_client: int,
-        initial_amount: int = 0
+        initial_amount: int = 0,
     ) -> None:
         self._type_compte = type_compte
         self._id_client = id_client
@@ -27,18 +28,18 @@ class Compte:
             # Note : Assurez-vous que SQLCompte.creer accepte un montant initial
             new = SQLCompte.creer(self._type_compte, self._id_client, initial_amount)
             self._id = new.id
-    @property
+
     def get_id(self):
         """Get the the id"""
         return self._id
-    @property
+
     def get_type_compte(self):
         """Get the account type"""
         return self._type_compte
     @property
     def solde(self) -> int:
         """Calcule le solde actuel en sommant toutes les opérations."""
-        total_credits, total_debits = SQLCompte.get_credits_and_debits(self._id) #type: ignore
+        total_credits, total_debits = SQLCompte.get_credits_and_debits(self._id)  # type: ignore
         return total_credits - total_debits
 
     @classmethod

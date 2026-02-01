@@ -69,15 +69,30 @@ jobs:
     - name: Identify modified files
       id: files
       run: |
-          # Run linter only on modified files
-          FILES=$(git diff --name-only origin/main...HEAD | grep '\.py$' | xargs)
-          echo "py_files=$FILES" >> $GITHUB_OUTPUT
-    - name: Quality Gate (Pylint score > 8.0)
+        git fetch origin main:main
+        FILES=$(git diff --name-only main HEAD | grep '\.py$' | xargs)
+        echo "py_files=$FILES" >> $GITHUB_OUTPUT
+
+    - name: Run Pylint and Capture Score
       if: steps.files.outputs.py_files != ''
+      id: pylint_step
       run: |
-          # --fail-under=8 force error if note is too low
-          # --msg-template improve log comprehension
-          pylint --fail-under=8.0 --msg-template="{path}:{line}: [{msg_id}({symbol}), {obj}] {msg}" ${{ steps.files.outputs.py_files }}
+        pylint --fail-under=8.0 ${{ steps.files.outputs.py_files }} | tee pylint_report.txt
+        
+        SCORE=$(grep "Your code has been rated at" pylint_report.txt | cut -d ' ' -f 7)
+        echo "score=$SCORE" >> $GITHUB_OUTPUT
+
+    - name: Comment PR with Score
+      if: github.event_name == 'pull_request' && always() && steps.files.outputs.py_files != ''
+      uses: thollander/actions-comment-pull-request@v2
+      with:
+        message: |
+          **Quality report Pylint**
+          - Analyzed files : `${{ steps.files.outputs.py_files }}`
+          - Score : **${{ steps.pylint_step.outputs.score }}**
+          - Needs : **8.0/10**
+          
+          ${{ steps.pylint_step.outcome == 'success' && '**Quality verified !**' || '**Insufficient quality, please correct the errors.**' }}
   test:
       runs-on: ubuntu-latest
       needs : lint
@@ -103,6 +118,7 @@ jobs:
       - name: Run test
         run: |
           source .venv/bin/activate
+          export PYTHONPATH=$PYTHONPATH:$(pwd)/src
           pytest
           pytest --cov=. --cov-report=html --cov-report html:./coverage_report.html
   build:

@@ -1,20 +1,27 @@
-from Modele.TypeCompte import TypeCompte
-from Modele.SQL.SQLComptes import SQLCompte
+"""
+Account Management Module.
+Handles controller to database link for accounts.
+"""
 import logging
+from Modele.TypeCompte import TypeCompte
+from Modele.SQL.sql_comptes import SQLCompte
 
 logger = logging.getLogger(__name__)
 
 
 
 class Compte:
+    """
+    Represents a bank account.
+    """
     def __init__(
-        self, id: int | None, type_compte: TypeCompte, 
-        id_client: int, 
+        self, account_id: int | None, type_compte: TypeCompte,
+        id_client: int,
         initial_amount: int = 0
     ) -> None:
         self._type_compte = type_compte
         self._id_client = id_client
-        self._id = id
+        self._id = account_id
         # On ne crée en base QUE si l'id n'existe pas encore
         if self._id is None:
             # Note : Assurez-vous que SQLCompte.creer accepte un montant initial
@@ -24,6 +31,10 @@ class Compte:
     def get_id(self):
         """Get the the id"""
         return self._id
+    @property
+    def get_type_compte(self):
+        """Get the account type"""
+        return self._type_compte
     @property
     def solde(self) -> int:
         """Calcule le solde actuel en sommant toutes les opérations."""
@@ -39,11 +50,11 @@ class Compte:
         if not account:
             logger.error("Account not found")
             return None
-        loaded_account = cls(id=account.id, # type: ignore
-                             type_compte=account.type_compte, # type: ignore 
+        loaded_account = cls(account_id=account.id, # type: ignore
+                             type_compte=account.type_compte, # type: ignore
                              id_client=account.id_client # type: ignore
                              )
         return loaded_account
 
     def __repr__(self):
-        return f"<Compte(id={self._id}, type={self._type_compte.name}, solde={self.solde}€)>" # noqa: E501
+        return f"<Compte(id={self._id}, type={self._type_compte.name})>" # noqa: E501

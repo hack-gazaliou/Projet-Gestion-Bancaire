@@ -1,13 +1,22 @@
-from Modele.SQL.SQLManager import Base, SessionLocal
-from sqlalchemy import Column, Integer, Enum, ForeignKey
-from Modele.SQL.SQLOperations import SQLOperation
-from Modele.Compte import TypeCompte
+"""
+SQL Account Management Module.
+Handles database operations for bank accounts.
+"""
+
 import logging
+from sqlalchemy import Column, Integer, Enum, ForeignKey
+
+from Modele.compte import TypeCompte
+from Modele.SQL.sql_manager import Base, SESSIONLOCAL
+from Modele.SQL.sql_operations import SQLOperation
 
 logger = logging.getLogger(__name__)
 
 
 class SQLCompte(Base):
+    """
+    Represents a bank account in the database.
+    """
     __tablename__ = "comptes"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -15,14 +24,17 @@ class SQLCompte(Base):
     id_client = Column(Integer, ForeignKey("customers.id"), nullable=False)
 
     @classmethod
-    def get_credits_and_debits(cls, account_id: int | Column[int]) -> tuple[int, int]:
-        with SessionLocal() as session:
-            credits = session.query(cls).filter_by(id_compte_cible=account_id).all()
-            total_credits = sum(op.montant for op in credits)
-            debits = (
+    def get_credits_and_debits(cls, account_id: int) -> tuple[int, int]:
+        """
+        Calculates the total amount of credits and debits for a specific account.
+        """
+        with SESSIONLOCAL() as session:
+            credit_ops = session.query(cls).filter_by(id_compte_cible=account_id).all()
+            total_credits = sum(op.montant for op in credit_ops)
+            debit_ops = (
                 session.query(SQLOperation).filter_by(id_compte_source=account_id).all()
             )
-            total_debits = sum(op.montant for op in debits)
+            total_debits = sum(op.montant for op in debit_ops)
             return total_credits, total_debits  # type: ignore
 
     @classmethod
@@ -31,18 +43,18 @@ class SQLCompte(Base):
         Creates the account and, if an initial balance is provided,
         generates an initial deposit transaction.
         """
-        with SessionLocal() as session:
+        with SESSIONLOCAL() as session:
             nouveau = cls(type_compte=type_enum, id_client=id_client)
             session.add(nouveau)
             session.commit()
             session.refresh(nouveau)
 
             if initial_amount != 0:
-                # Initial deposit transaction when opening an account
-                from Modele.Operation import Operation
+                # pylint: disable=import-outside-toplevel
+                from Modele.operation import Operation
 
                 op_initiale = Operation(
-                    id_source_account=0,  # Primary account (of the bank)
+                    id_source_account=0,  # Bank internal account
                     id_target_account=nouveau.id,  # type: ignore
                     amount=initial_amount,
                 )
@@ -52,27 +64,33 @@ class SQLCompte(Base):
 
     @classmethod
     def get(cls, compte_id):
-        """Get an account by it's id"""
-        with SessionLocal() as session:
+        """
+        Retrieves an account by its unique identifier.
+        """
+        with SESSIONLOCAL() as session:
             return session.query(cls).filter_by(id=compte_id).first()
 
     def sauvegarder(self):
-        """Update the account in the database"""
-        with SessionLocal() as session:
+        """
+        Updates the account record in the database.
+        """
+        with SESSIONLOCAL() as session:
             session.merge(self)
             session.commit()
-            logger.debug(f"Account {self.id} updated")
+            logger.debug("Account %s updated", self.id)
 
     def supprimer(self):
-        """Delete the account from the database"""
-        with SessionLocal() as session:
+        """
+        Deletes the account from the database.
+        """
+        with SESSIONLOCAL() as session:
             objet_a_supprimer = session.query(SQLOperation).get(self.id)
             if objet_a_supprimer:
                 session.delete(objet_a_supprimer)
                 session.commit()
-                logger.debug(f"Account {self.id} deleted")
+                logger.debug("Account %s deleted", self.id)
 
     def __repr__(self):
         return (
-            f"<Compte(id={self.id}, type={self.type_compte.name}, solde={self.solde}€)>"
+            f"<Compte(id={self.id}, type={self.type_compte.name})>"
         )

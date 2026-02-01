@@ -1,12 +1,22 @@
-from sqlalchemy import Column, Integer, Float, ForeignKey, DateTime
-from Modele.SQL.SQLManager import Base, SessionLocal
-from datetime import datetime
+"""
+SQL Operations Management Module.
+Defines the data model for transactions between accounts.
+"""
+
 import logging
+from datetime import datetime
+
+from sqlalchemy import Column, Integer, Float, ForeignKey, DateTime
+
+from Modele.SQL.sql_manager import Base, SESSIONLOCAL
 
 logger = logging.getLogger(__name__)
 
 
 class SQLOperation(Base):
+    """
+    Represents a banking operation between two accounts in the database.
+    """
     __tablename__ = "operations"
     id = Column(Integer, primary_key=True, autoincrement=True)
 
@@ -16,17 +26,17 @@ class SQLOperation(Base):
     date_operation = Column(DateTime, default=datetime.now)
 
     def get_id(self):
+        """Returns the operation unique identifier."""
         return self.id
 
     @classmethod
     def execute_transfer(cls, source_id, target_id, amount):
         """
-        Create a transaction in the database and execute it
+        Creates a transaction in the database and executes it.
         """
-        with SessionLocal() as session:
-            from Modele.SQL.SQLComptes import (
-                SQLCompte,
-            )  # import local pour éviter les imports circulaires
+        with SESSIONLOCAL() as session:
+            # pylint: disable=import-outside-toplevel
+            from Modele.SQL.sql_comptes import SQLCompte
 
             source = session.query(SQLCompte).get(source_id)
             cible = session.query(SQLCompte).get(target_id)
@@ -36,24 +46,33 @@ class SQLOperation(Base):
                 return None
 
             nouvelle_operation = cls(
-                id_compte_source=source_id, id_compte_cible=target_id, montant=amount
+                id_compte_source=source_id,
+                id_compte_cible=target_id,
+                montant=amount
             )
 
             session.add(nouvelle_operation)
             session.commit()
+
             logger.debug(
-                f"Transfer of {amount}€ successfully completed from {source_id} to {target_id}." # noqa: E501
+                "Transfer of %s€ successful from %s to %s.",
+                amount, source_id, target_id
             )
             return nouvelle_operation
 
     @classmethod
     def get_by_account(cls, account_id: int):
-        """Gives all transactions associated with an account"""
-        with SessionLocal() as session:
+        """
+        Retrieves all transactions associated with a specific account.
+        """
+        with SESSIONLOCAL() as session:
             return session.query(cls).filter(
-                (cls.id_compte_source == account_id) | 
+                (cls.id_compte_source == account_id) |
                 (cls.id_compte_cible == account_id)
             ).order_by(cls.date_operation.desc()).all()
-        
+
     def __repr__(self):
-        return f"<Operation(id={self.id}, de={self.id_compte_source} vers={self.id_compte_cible}, montant={self.montant}€)>"# noqa: E501
+        return (
+            f"<Operation(id={self.id}, from={self.id_compte_source} "
+            f"to={self.id_compte_cible}, amount={self.montant}€)>"
+        )

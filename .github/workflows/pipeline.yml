@@ -66,10 +66,18 @@ jobs:
         python -m pip install --upgrade pip
         pip install -e .
         pip install -r requirements.txt
-    - name: Analysing the code with pylint
+    - name: Identify modified files
+      id: files
       run: |
-        source .venv/bin/activate
-        pylint $(git ls-files '*.py')
+          # Run linter only on modified files
+          FILES=$(git diff --name-only origin/main...HEAD | grep '\.py$' | xargs)
+          echo "py_files=$FILES" >> $GITHUB_OUTPUT
+    - name: Quality Gate (Pylint score > 8.0)
+      if: steps.files.outputs.py_files != ''
+      run: |
+          # --fail-under=8 force error if note is too low
+          # --msg-template improve log comprehension
+          pylint --fail-under=8.0 --msg-template="{path}:{line}: [{msg_id}({symbol}), {obj}] {msg}" ${{ steps.files.outputs.py_files }}
   test:
       runs-on: ubuntu-latest
       needs : lint

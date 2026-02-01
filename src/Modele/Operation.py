@@ -1,11 +1,18 @@
-from datetime import datetime
-from Modele.SQL.SQLOperations import SQLOperation
+"""
+Operations Management Module.
+Defines the data model for transactions between accounts.
+"""
 import logging
+from datetime import datetime
+from Modele.SQL.sql_operations import SQLOperation
 
 logger = logging.getLogger(__name__)
 
 
 class Operation:
+    """
+    Represent operations
+    """
     def __init__(
         self, id_source_account: int, id_target_account: int, amount: int
     ) -> None:
@@ -28,6 +35,16 @@ class Operation:
         else:
             logger.error("The transfert wasn't committed, please retry")
             raise OperationException
+    def get_id(self):
+        """
+        return the id of the operation
+        """
+        return self._id
+    def set_id(self, new_id):
+        """
+        Set a new id to the operation (for test only)
+        """
+        self._id = new_id
     @classmethod
     def get_account_history(cls, account_id: int) -> list['Operation']:
         """Gives all the transactions associated with an account"""
@@ -44,9 +61,15 @@ class Operation:
             history.append(op)
         return history
     def __repr__(self):
-        return f"<Operation(id={self._id}, from={self.id_source_account} to={self.id_target_account}, amount={self.amount}€)>" # noqa : E501
+        return f"""<Operation(id={self._id},
+                from={self.id_source_account}
+                to={self.id_target_account},
+                amount={self.amount}€)>""" # noqa : E501
 
 
 class OperationException(Exception):
+    """
+    Operation Exception class to handle error specific to this module
+    """
     def __repr__(self) -> str:
         return "The operation couldn't be committed to the database please retry"

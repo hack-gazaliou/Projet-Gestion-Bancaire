@@ -42,7 +42,7 @@ class SQLOperation(Base):
             session.add(nouvelle_operation)
             session.commit()
             logger.debug(
-                f"Transfer of {amount}€ successfully completed from {source_id} to {target_id}." # noqa: E501
+                f"Transfer of {amount}€ successfully completed from {source_id} to {target_id}."  # noqa: E501
             )
             return nouvelle_operation
 
@@ -50,10 +50,15 @@ class SQLOperation(Base):
     def get_by_account(cls, account_id: int):
         """Gives all transactions associated with an account"""
         with SessionLocal() as session:
-            return session.query(cls).filter(
-                (cls.id_compte_source == account_id) | 
-                (cls.id_compte_cible == account_id)
-            ).order_by(cls.date_operation.desc()).all()
-        
+            return (
+                session.query(cls)
+                .filter(
+                    (cls.id_compte_source == account_id)
+                    | (cls.id_compte_cible == account_id)
+                )
+                .order_by(cls.date_operation.desc())
+                .all()
+            )
+
     def __repr__(self):
-        return f"<Operation(id={self.id}, de={self.id_compte_source} vers={self.id_compte_cible}, montant={self.montant}€)>"# noqa: E501
+        return f"<Operation(id={self.id}, de={self.id_compte_source} vers={self.id_compte_cible}, montant={self.montant}€)>"  # noqa: E501

@@ -3,6 +3,7 @@ from unittest.mock import patch, MagicMock
 from datetime import datetime
 from Modele.Operation import Operation, OperationException
 
+
 class TestOperation:
     @patch("Modele.Operation.SQLOperation.execute_transfer")
     def test_execute_success(self, mock_transfer):
@@ -14,13 +15,12 @@ class TestOperation:
         mock_transfer.return_value = mock_op_sql
 
         op = Operation(id_source_account=1, id_target_account=2, amount=50)
-        
+
         op.execute()
 
-        assert op._id == 123 # type: ignore
-        assert op.date_operation == fixed_date # type: ignore
+        assert op._id == 123  # type: ignore
+        assert op.date_operation == fixed_date  # type: ignore
         mock_transfer.assert_called_once_with(1, 2, 50)
-
 
     @patch("Modele.Operation.SQLOperation.execute_transfer")
     def test_execute_failed(self, mock_transfer):
@@ -54,15 +54,16 @@ class TestOperation:
         history = Operation.get_account_history(1)
 
         assert len(history) == 2
-        assert history[0]._id == 101 # type: ignore
+        assert history[0]._id == 101  # type: ignore
         assert history[0].amount == 100
         assert history[1].id_target_account == 1
-        
+
         mock_get_sql.assert_called_once_with(1)
+
     def test_operation_repr(self):
         """Test the format and display"""
         op = Operation(id_source_account=1, id_target_account=2, amount=100)
         op._id = 456
-        
+
         expected = "<Operation(id=456, from=1 to=2, amount=100€)>"
         assert repr(op) == expected

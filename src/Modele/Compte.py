@@ -5,12 +5,13 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-
 class Compte:
     def __init__(
-        self, id: int | None, type_compte: TypeCompte, 
-        id_client: int, 
-        initial_amount: int = 0
+        self,
+        id: int | None,
+        type_compte: TypeCompte,
+        id_client: int,
+        initial_amount: int = 0,
     ) -> None:
         self._type_compte = type_compte
         self._id_client = id_client
@@ -20,14 +21,16 @@ class Compte:
             # Note : Assurez-vous que SQLCompte.creer accepte un montant initial
             new = SQLCompte.creer(self._type_compte, self._id_client, initial_amount)
             self._id = new.id
+
     @property
     def get_id(self):
         """Get the the id"""
         return self._id
+
     @property
     def solde(self) -> int:
         """Calcule le solde actuel en sommant toutes les opérations."""
-        total_credits, total_debits = SQLCompte.get_credits_and_debits(self._id) #type: ignore
+        total_credits, total_debits = SQLCompte.get_credits_and_debits(self._id)  # type: ignore
         return total_credits - total_debits
 
     @classmethod
@@ -39,11 +42,12 @@ class Compte:
         if not account:
             logger.error("Account not found")
             return None
-        loaded_account = cls(id=account.id, # type: ignore
-                             type_compte=account.type_compte, # type: ignore 
-                             id_client=account.id_client # type: ignore
-                             )
+        loaded_account = cls(
+            id=account.id,  # type: ignore
+            type_compte=account.type_compte,  # type: ignore
+            id_client=account.id_client,  # type: ignore
+        )
         return loaded_account
 
     def __repr__(self):
-        return f"<Compte(id={self._id}, type={self._type_compte.name}, solde={self.solde}€)>" # noqa: E501
+        return f"<Compte(id={self._id}, type={self._type_compte.name}, solde={self.solde}€)>"  # noqa: E501

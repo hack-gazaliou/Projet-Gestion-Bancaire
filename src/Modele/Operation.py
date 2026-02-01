@@ -1,5 +1,4 @@
 from datetime import datetime
-from Modele.SQL.SQLComptes import SQLCompte
 from Modele.SQL.SQLOperations import SQLOperation
 import logging
 
@@ -14,7 +13,7 @@ class Operation:
         self.id_target_account = id_target_account
         self.amount = amount
         self.date_operation = datetime.now()
-        self.id = 0
+        self._id = 0
 
     def execute(self) -> None:
         """
@@ -24,14 +23,28 @@ class Operation:
             self.id_source_account, self.id_target_account, self.amount
         )
         if operation is not None:
-            self.id = operation.get_id()
+            self._id = operation.get_id()
             self.date_operation = operation.date_operation  # sync the 2 objects
         else:
             logger.error("The transfert wasn't committed, please retry")
             raise OperationException
-
+    @classmethod
+    def get_account_history(cls, account_id: int) -> list['Operation']:
+        """Gives all the transactions associated with an account"""
+        sql_ops = SQLOperation.get_by_account(account_id)
+        history = []
+        for sql_op in sql_ops:
+            op = cls(
+                id_source_account=sql_op.id_compte_source, #type: ignore
+                id_target_account=sql_op.id_compte_cible, #type: ignore
+                amount=sql_op.montant #type: ignore
+            )
+            op._id = sql_op.id
+            op.date_operation = sql_op.date_operation
+            history.append(op)
+        return history
     def __repr__(self):
-        return f"<Operation(id={self.id}, from={self.id_source_account} to={self.id_target_account}, amount={self.amount}€)>"
+        return f"<Operation(id={self._id}, from={self.id_source_account} to={self.id_target_account}, amount={self.amount}€)>" # noqa : E501
 
 
 class OperationException(Exception):

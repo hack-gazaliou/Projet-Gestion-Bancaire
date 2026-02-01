@@ -1,5 +1,5 @@
 from Modele.SQL.SQLManager import Base, SessionLocal
-from sqlalchemy import Column, Integer, Enum, ForeignKey, ColumnElement
+from sqlalchemy import Column, Integer, Enum, ForeignKey
 from Modele.SQL.SQLOperations import SQLOperation
 from Modele.Compte import TypeCompte
 import logging
@@ -13,7 +13,6 @@ class SQLCompte(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     type_compte = Column(Enum(TypeCompte), default=TypeCompte.COURANT, nullable=False)
     id_client = Column(Integer, ForeignKey("customers.id"), nullable=False)
-    # solde = Column(Float, default=0.0)
 
     @classmethod
     def get_credits_and_debits(cls, account_id: int | Column[int]) -> tuple[int, int]:
@@ -29,8 +28,8 @@ class SQLCompte(Base):
     @classmethod
     def creer(cls, type_enum, id_client, initial_amount: int = 0):
         """
-        Crée le compte et, si un solde initial est fourni,
-        génère une opération de dépôt initial
+        Creates the account and, if an initial balance is provided,
+        generates an initial deposit transaction.
         """
         with SessionLocal() as session:
             nouveau = cls(type_compte=type_enum, id_client=id_client)
@@ -39,11 +38,11 @@ class SQLCompte(Base):
             session.refresh(nouveau)
 
             if initial_amount != 0:
-                # Simulation dépot initial pour faire les transactions de création de compte
+                # Initial deposit transaction when opening an account
                 from Modele.Operation import Operation
 
                 op_initiale = Operation(
-                    id_source_account=0,  # 0 = Coffre-fort de la banque
+                    id_source_account=0,  # Primary account (of the bank)
                     id_target_account=nouveau.id,  # type: ignore
                     amount=initial_amount,
                 )
@@ -53,19 +52,19 @@ class SQLCompte(Base):
 
     @classmethod
     def get(cls, compte_id):
-        """Récupère un objet compte par son ID"""
+        """Get an account by it's id"""
         with SessionLocal() as session:
             return session.query(cls).filter_by(id=compte_id).first()
 
     def sauvegarder(self):
-        """Met à jour l'état actuel de l'objet en base de données"""
+        """Update the account in the database"""
         with SessionLocal() as session:
-            session.merge(self)  # fusionner l'objet actuel avec la session
+            session.merge(self)
             session.commit()
             logger.debug(f"Account {self.id} updated")
 
     def supprimer(self):
-        """Supprime l'instance actuelle de la base de données"""
+        """Delete the account from the database"""
         with SessionLocal() as session:
             objet_a_supprimer = session.query(SQLOperation).get(self.id)
             if objet_a_supprimer:

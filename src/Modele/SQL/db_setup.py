@@ -40,6 +40,6 @@ def initialiser_coffre_fort() -> None:
                 session.rollback()
                 logger.error(
                     "Failed to initialize the safe. "
-                    "ID 0 may be reserved or there is a constraint conflict: %s", 
-                    e
+                    "ID 0 may be reserved or there is a constraint conflict: %s",
+                    e,
                 )

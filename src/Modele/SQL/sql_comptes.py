@@ -17,6 +17,7 @@ class SQLCompte(Base):
     """
     Represents a bank account in the database.
     """
+
     __tablename__ = "comptes"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -91,6 +92,4 @@ class SQLCompte(Base):
                 logger.debug("Account %s deleted", self.id)
 
     def __repr__(self):
-        return (
-            f"<Compte(id={self.id}, type={self.type_compte.name})>"
-        )
+        return f"<Compte(id={self.id}, type={self.type_compte.name})>"

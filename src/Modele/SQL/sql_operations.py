@@ -17,6 +17,7 @@ class SQLOperation(Base):
     """
     Represents a banking operation between two accounts in the database.
     """
+
     __tablename__ = "operations"
     id = Column(Integer, primary_key=True, autoincrement=True)
 
@@ -46,9 +47,7 @@ class SQLOperation(Base):
                 return None
 
             nouvelle_operation = cls(
-                id_compte_source=source_id,
-                id_compte_cible=target_id,
-                montant=amount
+                id_compte_source=source_id, id_compte_cible=target_id, montant=amount
             )
 
             session.add(nouvelle_operation)
@@ -56,7 +55,9 @@ class SQLOperation(Base):
 
             logger.debug(
                 "Transfer of %s€ successful from %s to %s.",
-                amount, source_id, target_id
+                amount,
+                source_id,
+                target_id,
             )
             return nouvelle_operation
 
@@ -66,10 +67,15 @@ class SQLOperation(Base):
         Retrieves all transactions associated with a specific account.
         """
         with SESSIONLOCAL() as session:
-            return session.query(cls).filter(
-                (cls.id_compte_source == account_id) |
-                (cls.id_compte_cible == account_id)
-            ).order_by(cls.date_operation.desc()).all()
+            return (
+                session.query(cls)
+                .filter(
+                    (cls.id_compte_source == account_id)
+                    | (cls.id_compte_cible == account_id)
+                )
+                .order_by(cls.date_operation.desc())
+                .all()
+            )
 
     def __repr__(self):
         return (

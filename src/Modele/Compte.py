@@ -13,6 +13,7 @@ class Compte:
     """
     Represents a bank account.
     """
+
     def __init__(
         self,
         account_id: int | None,
@@ -36,6 +37,7 @@ class Compte:
     def get_type_compte(self):
         """Get the account type"""
         return self._type_compte
+
     @property
     def solde(self) -> int:
         """Calcule le solde actuel en sommant toutes les opérations."""
@@ -51,11 +53,12 @@ class Compte:
         if not account:
             logger.error("Account not found")
             return None
-        loaded_account = cls(account_id=account.id, # type: ignore
-                             type_compte=account.type_compte, # type: ignore
-                             id_client=account.id_client # type: ignore
-                             )
+        loaded_account = cls(
+            account_id=account.id,  # type: ignore
+            type_compte=account.type_compte,  # type: ignore
+            id_client=account.id_client,  # type: ignore
+        )
         return loaded_account
 
     def __repr__(self):
-        return f"<Compte(id={self._id}, type={self._type_compte.name})>" # noqa: E501
+        return f"<Compte(id={self._id}, type={self._type_compte.name})>"  # noqa: E501

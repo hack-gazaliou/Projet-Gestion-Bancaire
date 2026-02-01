@@ -12,6 +12,7 @@ class TestOperation:
     """
     Test operation class
     """
+
     @patch("Modele.operation.SQLOperation.execute_transfer")
     def test_execute_success(self, mock_transfer):
         """Test a normal transaction (with success)"""
@@ -24,8 +25,8 @@ class TestOperation:
         op = Operation(id_source_account=1, id_target_account=2, amount=50)
         op.execute()
 
-        assert op.get_id() == 123 # type: ignore
-        assert op.date_operation == fixed_date # type: ignore
+        assert op.get_id() == 123  # type: ignore
+        assert op.date_operation == fixed_date  # type: ignore
         mock_transfer.assert_called_once_with(1, 2, 50)
 
     @patch("Modele.operation.SQLOperation.execute_transfer")
@@ -60,7 +61,7 @@ class TestOperation:
         history = Operation.get_account_history(1)
 
         assert len(history) == 2
-        assert history[0].get_id() == 101 # type: ignore
+        assert history[0].get_id() == 101  # type: ignore
         assert history[0].amount == 100
         assert history[1].id_target_account == 1
         mock_get_sql.assert_called_once_with(1)

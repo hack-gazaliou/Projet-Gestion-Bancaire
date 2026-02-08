@@ -9,7 +9,7 @@ from Modele.Customer import (
     CustomerContactInfo,
     CustomerPersonalInfo,
 )
-from Modele.SQL.Customer_SQL import Customer as CustomerSQL
+from Modele.SQL.SQLCustomer import Customer as CustomerSQL
 from Modele.Compte import Compte, Decouvert
 from Modele.Operation import Operation, TypeOperation
 from Modele.SQLManager import SessionLocal

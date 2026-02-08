@@ -2,14 +2,10 @@ from datetime import datetime
 from Modele.SQL.SQLComptes import SQLCompte
 from Modele.SQL.SQLOperations import SQLOperation
 import logging
-from enum import Enum
 
 logger = logging.getLogger(__name__)
 
-class TypeOperation(Enum):
-    DEPOT = 0
-    RETRAIT = 1
-    
+
 class Operation:
     def __init__(
         self, id_source_account: int, id_target_account: int, amount: int

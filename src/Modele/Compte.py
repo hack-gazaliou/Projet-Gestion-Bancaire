@@ -1,7 +1,6 @@
 from enum import IntEnum
 from Modele.SQL.SQLComptes import SQLCompte
 import logging
-from enum import Enum
 
 logger = logging.getLogger(__name__)
 
@@ -10,9 +9,7 @@ class TypeCompte(IntEnum):
     COURANT = 0
     LIVRET_A = 1
     PEL = 2
-    
-class Decouvert(Enum) :
-    DECOUVERT_MAX = 100_000 
+
 
 class Compte:
     def __init__(

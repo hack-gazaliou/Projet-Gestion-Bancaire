@@ -1,5 +1,4 @@
 import sys
-import os
 import operations
 import account_operations
 
@@ -13,7 +12,6 @@ from PySide6.QtWidgets import (
     QPushButton,
     QListWidget,
     QLabel,
-    QToolBar,
     QListWidgetItem,
 )
 from PySide6.QtGui import QAction
@@ -139,7 +137,7 @@ class MainWindow(QMainWindow):
         nom_client = QLabel(
             f"<b>Détails - {item.text()}, id = {item.data(Qt.UserRole)}</b>"
         )
-        comptes = QLabel(f"Informations du client :\n\nComptes: Courant, PEL, Livret A")
+        comptes = QLabel("Informations du client :\n\nComptes: Courant, PEL, Livret A")
 
         new_zone_droite_widget = QWidget()
         new_zone_droite_widget.setStyleSheet("background-color: white;")

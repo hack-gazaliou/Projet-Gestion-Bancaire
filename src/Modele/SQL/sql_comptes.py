@@ -7,9 +7,9 @@ import logging
 
 from sqlalchemy import Column, Enum, ForeignKey, Integer
 
-from Modele.type_compte import TypeCompte
 from Modele.SQL.sql_manager import SESSIONLOCAL, Base
 from Modele.SQL.sql_operations import SQLOperation
+from Modele.type_compte import TypeCompte
 
 logger = logging.getLogger(__name__)
 

@@ -59,11 +59,21 @@ jobs:
         continue-on-error: true
         run: |
           source .venv/bin/activate
-          ruff check ${{ steps.files.outputs.py_files }} > ruff_report.txt 2>&1
+          ruff check ${{ steps.files.outputs.py_files }} --format=grouped > ruff_report.txt 2>&1
           exit_code=$?
-          echo "errors=$(grep -c ":" ruff_report.txt || echo "0")" >> $GITHUB_OUTPUT
+          
+          echo "REPORT<<EOF" >> $GITHUB_ENV
+          cat ruff_report.txt >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+          
+          # Extraction du nombre d'erreurs
+          ERR_COUNT=$(grep -oE "Found [0-9]+ error" ruff_report.txt | grep -oE "[0-9]+" || echo "0")
+          echo "errors=$ERR_COUNT" >> $GITHUB_OUTPUT
+          
+          
           cat ruff_report.txt
           exit $exit_code
+
       - name: Comment PR with Ruff Report
         if: github.event_name == 'pull_request' && always() && steps.files.outputs.py_files != ''
         uses: thollander/actions-comment-pull-request@v2
@@ -71,9 +81,11 @@ jobs:
           message: |
             ### Rapport de Qualité Ruff
             - **Fichiers analysés** : `${{ steps.files.outputs.py_files }}`
-            - **Erreurs détectées** : `${{ steps.ruff_step.outputs.errors }}`
+            - **Nombre d'erreurs** : `${{ steps.ruff_step.outputs.errors }}`
             
-            ${{ steps.ruff_step.outcome == 'success' && '**Tout est propre !**' || '**Des corrections sont nécessaires.**' }}
+            ${{ steps.ruff_step.outcome == 'success' && '**Tout est propre !**' || '**Des corrections manuelles sont nécessaires :**' }}
+            
+            ${{ steps.ruff_step.outcome != 'success' && format('```text{0}```', env.REPORT) || '' }}
   test:
       runs-on: ubuntu-latest
       needs : quality

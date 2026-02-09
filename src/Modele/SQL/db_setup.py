@@ -7,7 +7,8 @@ import logging
 
 from sqlalchemy.exc import SQLAlchemyError
 
-from Modele.compte import Compte, TypeCompte
+from Modele.Compte import Compte
+from Modele.type_compte import TypeCompte
 from Modele.SQL.sql_manager import SESSIONLOCAL, Base, engine
 
 logger = logging.getLogger(__name__)

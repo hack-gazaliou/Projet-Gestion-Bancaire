@@ -18,7 +18,7 @@ Ces modules gèrent la persistance avec la base de données.
 ::: Modele.SQL.sql_manager
 ::: Modele.SQL.db_setup
 ::: Modele.SQL.sql_comptes
-::: Modele.SQL.sql_customer
+::: Modele.SQL.SQLCustomer
 ::: Modele.SQL.sql_operations
 
 ---

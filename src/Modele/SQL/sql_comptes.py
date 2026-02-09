@@ -7,7 +7,7 @@ import logging
 
 from sqlalchemy import Column, Enum, ForeignKey, Integer
 
-from Modele.compte import TypeCompte
+from Modele.type_compte import TypeCompte
 from Modele.SQL.sql_manager import SESSIONLOCAL, Base
 from Modele.SQL.sql_operations import SQLOperation
 
@@ -53,7 +53,7 @@ class SQLCompte(Base):
 
             if initial_amount != 0:
                 # pylint: disable=import-outside-toplevel
-                from Modele.operation import Operation
+                from Modele.Operation import Operation
 
                 op_initiale = Operation(
                     id_source_account=0,  # Bank internal account

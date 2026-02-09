@@ -5,7 +5,6 @@ Unitary test for the Compte class and associated method
 from unittest.mock import MagicMock, patch
 
 from Modele.Compte import Compte
-
 from Modele.type_compte import TypeCompte
 
 

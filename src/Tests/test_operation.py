@@ -6,7 +6,7 @@ from datetime import datetime
 from unittest.mock import MagicMock, patch
 
 import pytest
-from Modele.operation import Operation, OperationException
+from Modele.Operation import Operation, OperationException
 
 
 class TestOperation:
@@ -14,7 +14,7 @@ class TestOperation:
     Test operation class
     """
 
-    @patch("Modele.operation.SQLOperation.execute_transfer")
+    @patch("Modele.Operation.SQLOperation.execute_transfer")
     def test_execute_success(self, mock_transfer):
         """Test a normal transaction (with success)"""
         fixed_date = datetime(2024, 1, 1, 12, 0)
@@ -30,7 +30,7 @@ class TestOperation:
         assert op.date_operation == fixed_date  # type: ignore
         mock_transfer.assert_called_once_with(1, 2, 50)
 
-    @patch("Modele.operation.SQLOperation.execute_transfer")
+    @patch("Modele.Operation.SQLOperation.execute_transfer")
     def test_execute_failed(self, mock_transfer):
         """Test the OperationException raise when the transaction fail"""
         mock_transfer.return_value = None
@@ -40,7 +40,7 @@ class TestOperation:
         with pytest.raises(OperationException):
             op.execute()
 
-    @patch("Modele.operation.SQLOperation.get_by_account")
+    @patch("Modele.Operation.SQLOperation.get_by_account")
     def test_get_account_history(self, mock_get_sql):
         """Test the recovery of the transaction history"""
         mock_op1 = MagicMock()

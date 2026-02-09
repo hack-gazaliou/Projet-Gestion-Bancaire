@@ -4,10 +4,11 @@ Provides functions to set up the database schema and initial state.
 """
 
 import logging
+
 from sqlalchemy.exc import SQLAlchemyError
 
 from Modele.compte import Compte, TypeCompte
-from Modele.SQL.sql_manager import engine, Base, SESSIONLOCAL
+from Modele.SQL.sql_manager import SESSIONLOCAL, Base, engine
 
 logger = logging.getLogger(__name__)
 

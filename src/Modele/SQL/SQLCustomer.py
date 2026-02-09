@@ -1,6 +1,8 @@
-from Modele.SQL.SQLManager import Base
-from sqlalchemy import Column, Integer, String
 from typing import TYPE_CHECKING
+
+from sqlalchemy import Column, Integer, String
+
+from Modele.SQL.SQLManager import Base
 
 if TYPE_CHECKING:
     from Modele.Customer import Customer as CustomerStorageModel
@@ -24,9 +26,9 @@ class Customer(Base):
         """
         from Modele.Customer import (
             Customer,
-            CustomerPersonalInfo,
-            CustomerContactInfo,
             CustomerCardInfo,
+            CustomerContactInfo,
+            CustomerPersonalInfo,
         )
 
         personal = CustomerPersonalInfo(self.first_name, self.last_name)

@@ -6,9 +6,9 @@ Defines the data model for transactions between accounts.
 import logging
 from datetime import datetime
 
-from sqlalchemy import Column, Integer, Float, ForeignKey, DateTime
+from sqlalchemy import Column, DateTime, Float, ForeignKey, Integer
 
-from Modele.SQL.sql_manager import Base, SESSIONLOCAL
+from Modele.SQL.sql_manager import SESSIONLOCAL, Base
 
 logger = logging.getLogger(__name__)
 

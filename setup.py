@@ -1,5 +1,6 @@
-""" Setup script for the gestion_bancaire package"""
-from setuptools import setup, find_packages
+"""Setup script for the gestion_bancaire package"""
+
+from setuptools import find_packages, setup
 
 setup(
     name="gestion_bancaire",

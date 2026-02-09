@@ -4,10 +4,11 @@ Handles database operations for bank accounts.
 """
 
 import logging
-from sqlalchemy import Column, Integer, Enum, ForeignKey
+
+from sqlalchemy import Column, Enum, ForeignKey, Integer
 
 from Modele.compte import TypeCompte
-from Modele.SQL.sql_manager import Base, SESSIONLOCAL
+from Modele.SQL.sql_manager import SESSIONLOCAL, Base
 from Modele.SQL.sql_operations import SQLOperation
 
 logger = logging.getLogger(__name__)

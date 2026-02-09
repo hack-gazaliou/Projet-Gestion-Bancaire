@@ -2,8 +2,9 @@
 Unitary test for the Operation class and associated method
 """
 
-from unittest.mock import patch, MagicMock
 from datetime import datetime
+from unittest.mock import MagicMock, patch
+
 import pytest
 from Modele.operation import Operation, OperationException
 

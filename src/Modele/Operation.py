@@ -2,8 +2,10 @@
 Operations Management Module.
 Defines the data model for transactions between accounts.
 """
+
 import logging
 from datetime import datetime
+
 from Modele.SQL.sql_operations import SQLOperation
 
 logger = logging.getLogger(__name__)

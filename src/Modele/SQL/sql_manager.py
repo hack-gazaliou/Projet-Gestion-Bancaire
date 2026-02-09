@@ -3,6 +3,7 @@ Create the engine and the session of sqlalchemy
 for communicating with the database.
 Create the database if not present.
 """
+
 from sqlalchemy import create_engine
 from sqlalchemy.orm import declarative_base, sessionmaker
 

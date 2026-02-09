@@ -1,6 +1,7 @@
 """
 enum class
 """
+
 from enum import IntEnum
 
 

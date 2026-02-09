@@ -13,8 +13,11 @@ permissions:
   contents: write
 
 jobs:
-  format:
+  quality:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
     steps:
       - uses: actions/checkout@v3
         with:
@@ -30,72 +33,50 @@ jobs:
           python -m pip install --upgrade pip
           pip install -e .
           pip install -r requirements.txt
-          pip install black
       - name: Put the virtual environnement in cache
         uses: actions/cache@v3
         with:
           path: .venv
           key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
-      - name: Format code with Black
+      - name: Auto-fix and Format code with Ruff
         run: |
           source .venv/bin/activate
-          black .
+          ruff check . --fix --show-fixes
+          ruff format .
       - name: Commit changes
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: "style: auto-format code with black"
-  lint:
-    runs-on: ubuntu-latest
-    needs: format
-    steps:
-    - name: get code
-      uses: actions/checkout@v4
-    - name: Set up Python 3.11
-      uses: actions/setup-python@v3
-      with:
-        python-version: 3.11
-    - name: Cache dependencies
-      uses: actions/cache@v3
-      with:
-        path: .venv
-        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
-    - name: Install dependencies
-      run: |
-        python -m venv .venv
-        source .venv/bin/activate
-        python -m pip install --upgrade pip
-        pip install -e .
-        pip install -r requirements.txt
-    - name: Identify modified files
-      id: files
-      run: |
-        git fetch origin main:main
-        FILES=$(git diff --name-only main HEAD | grep '\.py$' | xargs)
-        echo "py_files=$FILES" >> $GITHUB_OUTPUT
-
-    - name: Run Pylint and Capture Score
-      if: steps.files.outputs.py_files != ''
-      id: pylint_step
-      run: |
-        pylint --fail-under=8.0 ${{ steps.files.outputs.py_files }} | tee pylint_report.txt
-        
-        SCORE=$(grep "Your code has been rated at" pylint_report.txt | cut -d ' ' -f 7)
-        echo "score=$SCORE" >> $GITHUB_OUTPUT
-
-    - name: Comment PR with Score
-      if: github.event_name == 'pull_request' && always() && steps.files.outputs.py_files != ''
-      uses: thollander/actions-comment-pull-request@v2
-      with:
-        message: |
-          **Quality report Pylint**
-          - Analyzed files : `${{ steps.files.outputs.py_files }}`
-          - Score : **${{ steps.pylint_step.outputs.score }}**
-          - Needs : **8.0/10**
-          
-          ${{ steps.pylint_step.outcome == 'success' && '**Quality verified !**' || '**Insufficient quality, please correct the errors.**' }}
+          commit_message: "style: auto-format with ruff"
+      - name: Identify modified files
+        id: files
+        run: |
+          git fetch origin main:main
+          FILES=$(git diff --name-only main HEAD | grep '\.py$' | xargs)
+          echo "py_files=$FILES" >> $GITHUB_OUTPUT
+      - name: Run Ruff Lint
+        if: steps.files.outputs.py_files != ''
+        id: ruff_step
+        continue-on-error: true
+        run: |
+          source .venv/bin/activate
+          ruff check ${{ steps.files.outputs.py_files }} > ruff_report.txt 2>&1
+          exit_code=$?
+          echo "errors=$(grep -c ":" ruff_report.txt || echo "0")" >> $GITHUB_OUTPUT
+          cat ruff_report.txt
+          exit $exit_code
+      - name: Comment PR with Ruff Report
+        if: github.event_name == 'pull_request' && always() && steps.files.outputs.py_files != ''
+        uses: thollander/actions-comment-pull-request@v2
+        with:
+          message: |
+            ### Rapport de Qualité Ruff
+            - **Fichiers analysés** : `${{ steps.files.outputs.py_files }}`
+            - **Erreurs détectées** : `${{ steps.ruff_step.outputs.errors }}`
+            
+            ${{ steps.ruff_step.outcome == 'success' && '**Tout est propre !**' || '**Des corrections sont nécessaires.**' }}
   test:
       runs-on: ubuntu-latest
-      needs : lint
+      needs : quality
       steps:
       - name: execute unitary and coverage tests
         uses: actions/checkout@v4
@@ -132,12 +113,12 @@ jobs:
       permissions:
         contents: write
         pull-requests: write
-      needs: [format]
+      needs: [quality]
       # S'exécute si c'est un push sur main OU si c'est une PR vers main
       if: |
         always() && 
         (github.event_name == 'pull_request' || github.ref == 'refs/heads/main') &&
-        needs.format.result == 'success'
+        needs.quality.result == 'success'
       
       steps:
         - name: Checkout repository code

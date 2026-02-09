@@ -8,9 +8,9 @@ Cette page regroupe la documentation technique générée automatiquement à par
 Le cœur logique et les entités de l'application.
 
 ### Entités principales
-::: Modele.compte
+::: Modele.Compte
 ::: Modele.Customer
-::: Modele.operation
+::: Modele.Operation
 
 ### Accès aux données (SQL)
 Ces modules gèrent la persistance avec la base de données.

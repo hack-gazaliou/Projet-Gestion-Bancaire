@@ -23,13 +23,11 @@ dependencies = [
 [project.optional-dependencies]
 dev = [
     "pylint",
-    "black",
-    "pytest",
     "ruff",
 ]
 
 [project.scripts]
-# Exemple pour lancer ton appli via la console : 
+# Exemple pour lancer appli via la console : 
 # gestion-banque = "gestion_bancaire.main:main"
 
 [tool.setuptools]
@@ -38,12 +36,16 @@ package-dir = {"" = "src"}
 [tool.setuptools.packages.find]
 where = ["src"]
 
-# --- Configuration des outils (Bonus) ---
-
-[tool.black]
-line-length = 88
-target-version = ['py311']
+# Conf ruff
 
 [tool.ruff]
 line-length = 88
-select = ["E", "F", "B"] # Erreurs, Flake8, Bugbear
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "W", "F", "I", "B", "C90"] # Error, Warning, Unused variables / imports, Isort, bugbeart, cyclomatique complexity
+ignore = ["E501"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"

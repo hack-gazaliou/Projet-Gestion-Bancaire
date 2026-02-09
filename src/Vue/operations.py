@@ -1,16 +1,15 @@
-from functools import partial
+from PySide6.QtCore import Qt
+from PySide6.QtGui import QIntValidator
 from PySide6.QtWidgets import (
-    QWidget,
-    QVBoxLayout,
-    QLabel,
-    QLineEdit,
-    QPushButton,
     QComboBox,
     QFormLayout,
+    QLabel,
+    QLineEdit,
     QMessageBox,
+    QPushButton,
+    QVBoxLayout,
+    QWidget,
 )
-from PySide6.QtGui import QIntValidator
-from PySide6.QtCore import Qt
 
 
 def update_right_panel(main_window, new_widget):
@@ -280,13 +279,13 @@ def prepare_transfer(
         dest_account_id = dest_customer_account_combo.itemData(index_dest)
 
         print(
-            f"Virement interne: compte source{source_account_id} compote destinataire{dest_account_id} d'un montant de {int(amount_input.text())*100}"
+            f"Virement interne: compte source{source_account_id} compote destinataire{dest_account_id} d'un montant de {int(amount_input.text()) * 100}"
         )  # mult 100 pour passer en centimes
     elif transfer_type == "Virement Externe":
         index_dest = external_account_combo.currentIndex()
         dest_account_id = external_account_combo.itemData(index_dest)
         print(
-            f"Virement externe: compte source{source_account_id} compote destinataire{dest_account_id}d'un montant de {int(amount_input.text())*100}"
+            f"Virement externe: compte source{source_account_id} compote destinataire{dest_account_id}d'un montant de {int(amount_input.text()) * 100}"
         )
 
 
@@ -313,4 +312,4 @@ def prepare_withdraw(main_window, account_combo, amount_input):
         return
     index_source = account_combo.currentIndex()
     account_id = account_combo.itemData(index_source)
-    print(f" compte {account_id} montant{int(amount_input.text())*100} ")
+    print(f" compte {account_id} montant{int(amount_input.text()) * 100} ")

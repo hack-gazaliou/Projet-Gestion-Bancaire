@@ -1,14 +1,12 @@
+from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
     QDialog,
-    QVBoxLayout,
+    QDialogButtonBox,
     QFormLayout,
     QLineEdit,
-    QDialogButtonBox,
-    QLabel,
     QMessageBox,
+    QVBoxLayout,
 )
-from PySide6.QtCore import Qt
-import VuePrincipale
 
 
 def show_create_client_popup(main_window):

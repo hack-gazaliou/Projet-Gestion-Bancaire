@@ -1,23 +1,21 @@
 import sys
-import os
-import operations
-import account_operations
 
+import account_operations
+import operations
+from PySide6.QtCore import Qt
+from PySide6.QtGui import QAction
 from PySide6.QtWidgets import (
     QApplication,
-    QMainWindow,
-    QWidget,
-    QVBoxLayout,
     QHBoxLayout,
-    QLineEdit,
-    QPushButton,
-    QListWidget,
     QLabel,
-    QToolBar,
+    QLineEdit,
+    QListWidget,
     QListWidgetItem,
+    QMainWindow,
+    QPushButton,
+    QVBoxLayout,
+    QWidget,
 )
-from PySide6.QtGui import QAction
-from PySide6.QtCore import Qt
 
 
 class MainWindow(QMainWindow):
@@ -139,7 +137,7 @@ class MainWindow(QMainWindow):
         nom_client = QLabel(
             f"<b>Détails - {item.text()}, id = {item.data(Qt.UserRole)}</b>"
         )
-        comptes = QLabel(f"Informations du client :\n\nComptes: Courant, PEL, Livret A")
+        comptes = QLabel("Informations du client :\n\nComptes: Courant, PEL, Livret A")
 
         new_zone_droite_widget = QWidget()
         new_zone_droite_widget.setStyleSheet("background-color: white;")

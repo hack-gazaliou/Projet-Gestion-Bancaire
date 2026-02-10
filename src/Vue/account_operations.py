@@ -1,12 +1,12 @@
-from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
     QDialog,
-    QDialogButtonBox,
+    QVBoxLayout,
     QFormLayout,
     QLineEdit,
+    QDialogButtonBox,
     QMessageBox,
-    QVBoxLayout,
 )
+from PySide6.QtCore import Qt
 
 
 def show_create_client_popup(main_window):

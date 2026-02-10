@@ -30,7 +30,6 @@ py==1.11.0
 Pygments==2.19.2
 pyinstaller==5.13.2
 pyinstaller-hooks-contrib==2025.10
-pylint==4.0.4
 pyparsing==3.0.9
 pytest==9.0.2
 pytest-cov==7.0.0
@@ -44,3 +43,7 @@ tomli==2.0.1
 tomlkit==0.13.3
 tzdata==2025.3
 virtualenv==20.35.4
+mkdocstrings[python]>=0.18
+mkdocs-material
+sqlalchemy
+ruff

@@ -1,7 +1,9 @@
 from __future__ import annotations
+
 from dataclasses import dataclass
-from sqlalchemy.exc import SQLAlchemyError
 from typing import TYPE_CHECKING, Optional
+
+from sqlalchemy.exc import SQLAlchemyError
 
 if TYPE_CHECKING:
     # Cet import n'est lu que par VS Code

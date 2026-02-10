@@ -1,0 +1,183 @@
+name: Lint, test and build project
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: write
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{ github.head_ref }}
+      - name: Set up Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: 3.11
+      - name: Install dependencies
+        run: |
+          python -m venv .venv
+          source .venv/bin/activate
+          python -m pip install --upgrade pip
+          pip install -e .
+          pip install -r requirements.txt
+      - name: Put the virtual environnement in cache
+        uses: actions/cache@v3
+        with:
+          path: .venv
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+      - name: Auto-fix and Format code with Ruff
+        run: |
+          source .venv/bin/activate
+          ruff check . --fix --show-fixes
+          ruff format .
+      - name: Commit changes
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "style: auto-format with ruff"
+      - name: Identify modified files
+        id: files
+        run: |
+          git fetch origin main:main
+          FILES=$(git diff --name-only main HEAD | grep '\.py$' | xargs)
+          echo "py_files=$FILES" >> $GITHUB_OUTPUT
+      - name: Run Ruff Lint
+        if: steps.files.outputs.py_files != ''
+        id: ruff_step
+        continue-on-error: true
+        run: |
+          source .venv/bin/activate
+          ruff check ${{ steps.files.outputs.py_files }} --format=grouped > ruff_report.txt 2>&1
+          exit_code=$?
+          
+          echo "REPORT<<EOF" >> $GITHUB_ENV
+          cat ruff_report.txt >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+          
+          # Extraction du nombre d'erreurs
+          ERR_COUNT=$(grep -oE "Found [0-9]+ error" ruff_report.txt | grep -oE "[0-9]+" || echo "0")
+          echo "errors=$ERR_COUNT" >> $GITHUB_OUTPUT
+          
+          
+          cat ruff_report.txt
+          exit $exit_code
+
+      - name: Comment PR with Ruff Report
+        if: github.event_name == 'pull_request' && always() && steps.files.outputs.py_files != ''
+        uses: thollander/actions-comment-pull-request@v2
+        with:
+          message: |
+            ### Rapport de Qualité Ruff
+            - **Fichiers analysés** : `${{ steps.files.outputs.py_files }}`
+            - **Nombre d'erreurs** : `${{ steps.ruff_step.outputs.errors }}`
+            
+            ${{ steps.ruff_step.outcome == 'success' && '**Tout est propre !**' || '**Des corrections manuelles sont nécessaires :**' }}
+            
+            ${{ steps.ruff_step.outcome != 'success' && format('```text{0}```', env.REPORT) || '' }}
+  test:
+      runs-on: ubuntu-latest
+      needs : quality
+      steps:
+      - name: execute unitary and coverage tests
+        uses: actions/checkout@v4
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v3
+        with:
+          python-version: 3.11
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        with:
+          path: .venv
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+      - name: Install dependencies
+        run: |
+          python -m venv .venv
+          source .venv/bin/activate
+          python -m pip install --upgrade pip
+          pip install -e .
+          pip install -r requirements.txt
+      - name: Run test
+        run: |
+          source .venv/bin/activate
+          export PYTHONPATH=$PYTHONPATH:$(pwd)/src
+          pytest
+          pytest --cov=. --cov-report=html --cov-report html:./coverage_report.html
+  build:
+      needs : test
+      uses: ./.github/workflows/build_project.yml 
+      with: 
+        python-version: 3.11
+  deploy-docs:
+      name: Generate and Deploy Documentation
+      runs-on: ubuntu-latest
+      permissions:
+        contents: write
+        pull-requests: write
+      needs: [quality]
+      # S'exécute si c'est un push sur main OU si c'est une PR vers main
+      if: |
+        always() && 
+        (github.event_name == 'pull_request' || github.ref == 'refs/heads/main') &&
+        needs.quality.result == 'success'
+      
+      steps:
+        - name: Checkout repository code
+          uses: actions/checkout@v4
+          with:
+            fetch-depth: 0
+
+        - name: Set up Python 3.11
+          uses: actions/setup-python@v4
+          with:
+            python-version: 3.11
+
+        - name: Restore virtual environment from cache
+          uses: actions/cache@v3
+          with:
+            path: .venv
+            key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt', '**/pyproject.toml') }}
+
+        - name: Install documentation dependencies
+          run: |
+            python -m venv .venv
+            source .venv/bin/activate
+            pip install . mkdocs-material mkdocstrings[python]
+
+        - name: Build Only (Dry Run for PR)
+          if: github.event_name == 'pull_request'
+          run: |
+            source .venv/bin/activate
+            export PYTHONPATH=$PYTHONPATH:$(pwd)/src
+            mkdocs build # Vérifie juste que la doc compile sans erreur
+
+        - name: Build and Publish (Only on Main)
+          if: github.ref == 'refs/heads/main'
+          run: |
+            source .venv/bin/activate
+            mkdocs gh-deploy --force
+        - name: Upload Documentation Preview
+          if: github.event_name == 'pull_request'
+          uses: actions/upload-artifact@v4
+          with:
+            name: docs-preview-${{ github.event.pull_request.number }}
+            path: ./site/
+        - name: Comment PR with Doc Status
+          if: github.event_name == 'pull_request' && always()
+          uses: thollander/actions-comment-pull-request@v2
+          with:
+            message: |
+              **Documentation Status** : 
+              - ${{ job.status == 'success' && 'Build success !' || 'Build failed.' }}
+              - ${{ job.status == 'success' && 'The preview is available in the Artifacts of the action.' || 'Please retry later.' }}

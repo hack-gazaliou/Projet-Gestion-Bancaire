@@ -23,7 +23,7 @@ To install the project in development mode, use the following commands in your t
 
 ```bash
 # Clone the repository
-git clone <url-du-depot>
+git clone https://github.com/hack-gazaliou/Projet-Gestion-Bancaire
 cd Projet-Gestion-Bancaire
 
 # Create and activate the virtual environnement
@@ -36,4 +36,10 @@ source ".venv\Scripts\activate"
 
 # Install dependencies
 pip install -e .
+```
+## Use it
+
+To use the application after successful installation, simply use the command :
+```bash
+gestion_bancaire
 ```

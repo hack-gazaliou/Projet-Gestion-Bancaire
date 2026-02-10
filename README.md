@@ -16,3 +16,39 @@ En plus de l'utilisation de Pylance pour l'UI, on utilisera ici :
     - DB SQLite pour la manipulation et le stockage des données utilisateurs.
     - Le reste à compléter...
 
+# Installation
+Avec environnement virtuel (recommandé).
+Pour installer le projet sur votre ordinateur utilisez les commandes suivantes:
+
+```bash
+# Clone the repository
+git clone https://github.com/hack-gazaliou/Projet-Gestion-Bancaire
+cd Projet-Gestion-Bancaire
+
+# Create and activate the virtual environnement
+python -m venv .venv
+
+# On linux:
+source ".venv/bin/activate" 
+# On Windows: 
+source ".venv\Scripts\activate"
+
+# Install dependencies
+pip install -e .
+```
+## Utilisation
+
+Pour l'utiliser, dans un terminal, entrez la commande :
+```bash
+gestion_bancaire
+```
+
+# Note
+Une documentation plus complète est également disponible, mais n'est pas déployée.
+Pour accéder à l'aperçu, il suffit de télécharger l'archive disponible dans les artefacts de la dernière action GitHub, de la décompresser, puis d'entrer la commande suivante dans un terminal dans le dossier décompressé :
+
+```bash
+python -m http.server 8000
+
+# http://localhost:8000
+```

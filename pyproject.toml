@@ -27,8 +27,7 @@ dev = [
 ]
 
 [project.scripts]
-# Exemple pour lancer appli via la console : 
-# gestion-banque = "gestion_bancaire.main:main"
+    gestion_bancaire = "main:main"
 
 [tool.setuptools]
 package-dir = {"" = "src"}

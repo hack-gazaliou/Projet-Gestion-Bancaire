@@ -1,19 +1,18 @@
 # Référence technique de l'API
 
-Cette page regroupe la documentation technique générée automatiquement à partir des docstrings du projet.
-
+This page contains technical documentation generated automatically from the project's docstrings.
 ---
 
-## Modèle (Modele)
-Le cœur logique et les entités de l'application.
+## Model
+The logical core and entities of the application.
 
-### Entités principales
+### Main entities
 ::: Modele.Compte
 ::: Modele.Customer
 ::: Modele.Operation
 
-### Accès aux données (SQL)
-Ces modules gèrent la persistance avec la base de données.
+### Data Access (SQL)
+These modules manage persistence with the database.
 
 ::: Modele.SQL.sql_manager
 ::: Modele.SQL.db_setup
@@ -23,16 +22,20 @@ Ces modules gèrent la persistance avec la base de données.
 
 ---
 
-## Contrôleur (Controleur)
-Le lien entre le Modèle et la Vue.
+## Controller
+The link between the Model and the View.
 
 ::: Controleur
 
 ---
 
-## Vue (Vue)
-L'interface utilisateur graphique.
+## View
+The graphical user interface.
 
-::: Vue.VuePrincipale
-::: Vue.operations
+::: Vue.vue_principale
 ::: Vue.account_operations
+::: Vue.operations.account_view
+::: Vue.operations.base
+::: Vue.operations.deposit
+::: Vue.operations.transfer
+::: Vue.operations.withdraw

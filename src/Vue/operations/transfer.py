@@ -1,32 +1,33 @@
+from PySide6.QtCore import Qt
+from PySide6.QtGui import QIntValidator
 from PySide6.QtWidgets import (
     QComboBox,
+    QFormLayout,
+    QLabel,
     QLineEdit,
     QPushButton,
-    QLabel,
     QVBoxLayout,
-    QFormLayout,
 )
-from PySide6.QtGui import QIntValidator
-from PySide6.QtCore import Qt
+
 from .base import OperationWidget
 
 
 class TransferWidget(OperationWidget):
     """Widget pour effectuer un virement"""
-    
+
     def __init__(self, main_window):
         super().__init__(main_window)
-        
+
         if not self.show_if_user_selected():
             return
-            
+
         self.init_ui()
         self.update_right_panel()
 
     def init_ui(self):
         """Initialise l'interface utilisateur du virement"""
         main_layout = QVBoxLayout(self)
-        
+
         main_layout.addWidget(
             QLabel(
                 f"<h2>Effectuer un Virement</h2>"
@@ -45,10 +46,7 @@ class TransferWidget(OperationWidget):
 
         self.type_combo.addItems(["Virement Interne", "Virement Externe"])
         self.amount_input.setPlaceholderText("0.00 €")
-        self.amount_input.setValidator(
-            QIntValidator(0, 9999, self.amount_input)
-        )
-
+        self.amount_input.setValidator(QIntValidator(0, 9999, self.amount_input))
 
         for acc in self.get_account_list(self.current_user):
             self.source_combo.addItem(acc["nom"], acc["id"])
@@ -84,7 +82,6 @@ class TransferWidget(OperationWidget):
             self.on_external_client_changed
         )
 
-
         self.on_transfer_type_changed(0)
         if available_clients:
             self.on_external_client_changed()
@@ -113,16 +110,12 @@ class TransferWidget(OperationWidget):
         if not self.validate_amount(amount_text):
             return
 
-        source_account_id = self.source_combo.itemData(
-            self.source_combo.currentIndex()
-        )
+        source_account_id = self.source_combo.itemData(self.source_combo.currentIndex())
         transfer_type = self.type_combo.currentText()
         amount_cents = int(amount_text) * 100
 
         if transfer_type == "Virement Interne":
-            dest_account_id = self.dest_combo.itemData(
-                self.dest_combo.currentIndex()
-            )
+            dest_account_id = self.dest_combo.itemData(self.dest_combo.currentIndex())
             print(
                 f"Virement interne: compte source {source_account_id} "
                 f"compte destinataire {dest_account_id} "

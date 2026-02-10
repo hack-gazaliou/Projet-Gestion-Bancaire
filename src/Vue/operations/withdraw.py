@@ -1,24 +1,25 @@
+from PySide6.QtGui import QIntValidator
 from PySide6.QtWidgets import (
     QComboBox,
+    QFormLayout,
+    QLabel,
     QLineEdit,
     QPushButton,
-    QLabel,
     QVBoxLayout,
-    QFormLayout,
 )
-from PySide6.QtGui import QIntValidator
+
 from .base import OperationWidget
 
 
 class WithdrawWidget(OperationWidget):
     """Widget pour effectuer un retrait"""
-    
+
     def __init__(self, main_window):
         super().__init__(main_window)
-        
+
         if not self.show_if_user_selected():
             return
-            
+
         self.init_ui()
         self.update_right_panel()
 
@@ -34,16 +35,14 @@ class WithdrawWidget(OperationWidget):
         )
 
         form_layout = QFormLayout()
-        
+
         self.account_combo = QComboBox()
         for acc in self.get_account_list(self.current_user):
             self.account_combo.addItem(acc["nom"], acc["id"])
 
         self.amount_input = QLineEdit()
         self.amount_input.setPlaceholderText("0.00 €")
-        self.amount_input.setValidator(
-            QIntValidator(0, 9999, self.amount_input)
-        )
+        self.amount_input.setValidator(QIntValidator(0, 9999, self.amount_input))
 
         form_layout.addRow("Depuis le compte :", self.account_combo)
         form_layout.addRow("Montant à retirer :", self.amount_input)
@@ -60,8 +59,6 @@ class WithdrawWidget(OperationWidget):
         amount_text = self.amount_input.text()
         if not self.validate_amount(amount_text):
             return
-        
-        account_id = self.account_combo.itemData(
-            self.account_combo.currentIndex()
-        )
+
+        account_id = self.account_combo.itemData(self.account_combo.currentIndex())
         print(f"Compte {account_id} montant {int(amount_text) * 100}")

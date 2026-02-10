@@ -1,21 +1,21 @@
 import sys
-import operations
-import account_operations
 
+import account_operations
+import operations
+from PySide6.QtCore import Qt
+from PySide6.QtGui import QAction
 from PySide6.QtWidgets import (
     QApplication,
-    QMainWindow,
-    QWidget,
-    QVBoxLayout,
     QHBoxLayout,
-    QLineEdit,
-    QPushButton,
-    QListWidget,
     QLabel,
+    QLineEdit,
+    QListWidget,
     QListWidgetItem,
+    QMainWindow,
+    QPushButton,
+    QVBoxLayout,
+    QWidget,
 )
-from PySide6.QtGui import QAction
-from PySide6.QtCore import Qt
 
 
 class MainWindow(QMainWindow):

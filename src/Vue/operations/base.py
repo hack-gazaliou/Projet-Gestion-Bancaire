@@ -1,18 +1,18 @@
 """Classe de base pour tous les widgets d'opérations"""
 
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QMessageBox
 from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QLabel, QMessageBox, QVBoxLayout, QWidget
 
 
 class OperationWidget(QWidget):
     """Classe de base pour tous les widgets d'opérations"""
-    
+
     def __init__(self, main_window):
         super().__init__()
         self.main_window = main_window
         self.current_user = main_window.selected_user
         self.setStyleSheet("background-color: white;")
-        
+
     def update_right_panel(self):
         """Remplace le widget de droite"""
         self.main_window.content_layout.replaceWidget(
@@ -46,7 +46,6 @@ class OperationWidget(QWidget):
         )
         self.main_window.right_panel_widget.deleteLater()
         self.main_window.right_panel_widget = error_widget
-
 
     @staticmethod
     def get_account_list(client_item=None):

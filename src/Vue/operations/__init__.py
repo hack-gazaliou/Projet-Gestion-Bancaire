@@ -1,11 +1,12 @@
 """Package pour la gestion des opérations bancaires"""
 
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel
 from PySide6.QtCore import Qt
-from .transfer import TransferWidget
-from .deposit import DepositWidget
-from .withdraw import WithdrawWidget
+from PySide6.QtWidgets import QLabel, QVBoxLayout, QWidget
+
 from .account_view import AccountViewWidget
+from .deposit import DepositWidget
+from .transfer import TransferWidget
+from .withdraw import WithdrawWidget
 
 
 def show_transfer(main_window):
@@ -29,7 +30,7 @@ def show_account(main_window, item):
     if not main_window.selected_user:
         show_selection_error(main_window)
         return
-    
+
     client_id = item.data(Qt.UserRole)
     client_name = item.text()
     AccountViewWidget(main_window, client_id, client_name)

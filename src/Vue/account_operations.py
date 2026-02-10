@@ -7,6 +7,14 @@ from PySide6.QtWidgets import (
     QMessageBox,
 )
 from PySide6.QtCore import Qt
+from PySide6.QtWidgets import (
+    QDialog,
+    QDialogButtonBox,
+    QFormLayout,
+    QLineEdit,
+    QMessageBox,
+    QVBoxLayout,
+)
 
 
 def show_create_client_popup(main_window):

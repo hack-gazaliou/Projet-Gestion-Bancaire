@@ -1,7 +1,9 @@
-from sqlalchemy import Column, Integer, Float, ForeignKey, DateTime
-from Modele.SQL.SQLManager import Base, SessionLocal
-from datetime import datetime
 import logging
+from datetime import datetime
+
+from sqlalchemy import Column, DateTime, Float, ForeignKey, Integer
+
+from Modele.SQL.SQLManager import Base, SessionLocal
 
 logger = logging.getLogger(__name__)
 

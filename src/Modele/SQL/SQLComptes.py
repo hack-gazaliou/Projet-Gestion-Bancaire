@@ -1,8 +1,10 @@
-from Modele.SQL.SQLManager import Base, SessionLocal
-from sqlalchemy import Column, Integer, Enum, ForeignKey, ColumnElement
-from Modele.SQL.SQLOperations import SQLOperation
-from Modele.Compte import TypeCompte
 import logging
+
+from sqlalchemy import Column, Enum, ForeignKey, Integer
+
+from Modele.Compte import TypeCompte
+from Modele.SQL.SQLManager import Base, SessionLocal
+from Modele.SQL.SQLOperations import SQLOperation
 
 logger = logging.getLogger(__name__)
 

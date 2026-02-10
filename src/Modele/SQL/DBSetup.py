@@ -1,6 +1,7 @@
-from Modele.SQL.SQLManager import engine, Base, SessionLocal
-from Modele.Compte import Compte, TypeCompte
 import logging
+
+from Modele.Compte import Compte, TypeCompte
+from Modele.SQL.SQLManager import Base, SessionLocal, engine
 
 logger = logging.getLogger(__name__)
 

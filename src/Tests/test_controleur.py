@@ -9,8 +9,8 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 src_dir = os.path.join(current_dir, "..")
 sys.path.append(src_dir)
 
-from Controleur.controleur import Controller  #noqa: E402
-from Modele.Operation import TypeOperation  #noqa: E402
+from Controleur.controleur import Controller  # noqa: E402
+from Modele.Operation import TypeOperation  # noqa: E402
 
 
 @pytest.fixture
@@ -25,6 +25,7 @@ def mock_session():
 
 
 # TESTS CLIENTS
+
 
 def test_get_tous_les_clients(controller, mock_session):
     c1 = MagicMock(customer_id=1, last_name="Dupont", first_name="Jean")
@@ -64,6 +65,7 @@ def test_creer_nouveau_client_succes(controller):
 
 # TESTS COMPTES
 
+
 def test_ajouter_compte_client_succes(controller):
     with patch("Controleur.controleur.TypeCompte") as MockEnum:
         MockEnum.__getitem__.return_value = "MOCK_ENUM"
@@ -91,6 +93,7 @@ def test_get_comptes_client(controller, mock_session):
 
 
 # TESTS OPERATIONS
+
 
 def test_depot_espece(controller):
     fake_compte = MagicMock()
@@ -134,7 +137,7 @@ def test_retrait_espece_insuffisant(controller):
 
     with patch("Controleur.controleur.Compte.load", return_value=fake_compte):
         with patch("Controleur.controleur.Operation") as MockOperationClass:
-            _=MockOperationClass.return_value
+            _ = MockOperationClass.return_value
 
             succes, msg = controller.gerer_operation_espece(
                 1, 100000, TypeOperation.RETRAIT

@@ -56,37 +56,37 @@ class Controller:
             return liste_affichage
 
     def get_comptes_client(self, client_id) -> list:
-            with SessionLocal() as session:
-                try:
-                    comptes_sql = (
-                        session.query(SQLCompte).filter_by(id_client=client_id).all()
+        with SessionLocal() as session:
+            try:
+                comptes_sql = (
+                    session.query(SQLCompte).filter_by(id_client=client_id).all()
+                )
+            except Exception as e:
+                print(f"Erreur SQL : {e}")
+                return []
+
+            data_comptes = []
+            for c_sql in comptes_sql:
+                compte_metier = Compte.load(c_sql.id)
+
+                if compte_metier:
+                    valeur_solde = compte_metier.solde
+                    nom_type = compte_metier.get_type_compte().name
+
+                    if client_id == 0:
+                        solde_str = "∞"
+                    else:
+                        solde_str = f"{(valeur_solde / 100):.2f} €"
+                    # --------------------------------------------
+
+                    data_comptes.append(
+                        {
+                            "id": compte_metier.get_id(),
+                            "type": nom_type,
+                            "solde": solde_str,
+                        }
                     )
-                except Exception as e:
-                    print(f"Erreur SQL : {e}")
-                    return []
-
-                data_comptes = []
-                for c_sql in comptes_sql:
-                    compte_metier = Compte.load(c_sql.id)
-
-                    if compte_metier:
-                        valeur_solde = compte_metier.solde
-                        nom_type = compte_metier.get_type_compte().name
-
-                        if client_id == 0:
-                            solde_str = "∞"
-                        else:
-                            solde_str = f"{(valeur_solde / 100):.2f} €"
-                        # --------------------------------------------
-
-                        data_comptes.append(
-                            {
-                                "id": compte_metier.get_id(),
-                                "type": nom_type,
-                                "solde": solde_str,
-                            }
-                        )
-                return data_comptes
+            return data_comptes
 
     # --- ECRITURE ---
 

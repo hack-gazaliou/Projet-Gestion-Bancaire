@@ -60,11 +60,13 @@ def show_modify_client_popup(main_window):
         return
 
     client_id = selected_item.data(Qt.UserRole)
-    
+
     infos = main_window.controller.get_client_details(client_id)
-    
+
     if not infos:
-        QMessageBox.critical(main_window, "Erreur", "Impossible de récupérer les infos du client.")
+        QMessageBox.critical(
+            main_window, "Erreur", "Impossible de récupérer les infos du client."
+        )
         return
 
     dialog = QDialog(main_window)
@@ -73,17 +75,16 @@ def show_modify_client_popup(main_window):
 
     form = QFormLayout()
 
-    prenom_input = QLineEdit(infos.get("prenom", "")) 
-    nom_input = QLineEdit(infos.get("nom_famille", "")) 
-
+    prenom_input = QLineEdit(infos.get("prenom", ""))
+    nom_input = QLineEdit(infos.get("nom_famille", ""))
 
     if not nom_input.text() and "nom" in infos:
         parts = infos["nom"].split(" ")
         if len(parts) > 1:
-             nom_input.setText(parts[0])
-             prenom_input.setText(" ".join(parts[1:]))
+            nom_input.setText(parts[0])
+            prenom_input.setText(" ".join(parts[1:]))
         else:
-             nom_input.setText(infos["nom"])
+            nom_input.setText(infos["nom"])
 
     tel_input = QLineEdit(infos.get("telephone", ""))
     email_input = QLineEdit(infos.get("email", ""))
@@ -103,7 +104,7 @@ def show_modify_client_popup(main_window):
     buttons.accepted.connect(
         lambda: modify_client(
             main_window,
-            client_id, 
+            client_id,
             prenom_input,
             nom_input,
             tel_input,
@@ -117,10 +118,12 @@ def show_modify_client_popup(main_window):
     dialog.exec()
 
 
-def create_client(main_window, prenom_inp, nom_inp, tel_inp, email_inp, adr_inp, dialog):
+def create_client(
+    main_window, prenom_inp, nom_inp, tel_inp, email_inp, adr_inp, dialog
+):
     prenom = prenom_inp.text().strip()
     nom = nom_inp.text().strip()
-    
+
     if not prenom or not nom:
         QMessageBox.warning(dialog, "Erreur", "Nom et Prénom obligatoires.")
         return
@@ -130,7 +133,7 @@ def create_client(main_window, prenom_inp, nom_inp, tel_inp, email_inp, adr_inp,
         prenom=prenom,
         email=email_inp.text().strip(),
         telephone=tel_inp.text().strip(),
-        adresse=adr_inp.text().strip()
+        adresse=adr_inp.text().strip(),
     )
 
     if succes:
@@ -141,21 +144,26 @@ def create_client(main_window, prenom_inp, nom_inp, tel_inp, email_inp, adr_inp,
         QMessageBox.critical(dialog, "Erreur", f"Erreur lors de la création : {msg}")
 
 
-def modify_client(main_window, client_id, prenom_inp, nom_inp, tel_inp, email_inp, adr_inp, dialog):
+def modify_client(
+    main_window, client_id, prenom_inp, nom_inp, tel_inp, email_inp, adr_inp, dialog
+):
     succes, msg = main_window.controller.mettre_a_jour_client(
         client_id=client_id,
         nom=nom_inp.text().strip(),
         prenom=prenom_inp.text().strip(),
         email=email_inp.text().strip(),
         telephone=tel_inp.text().strip(),
-        adresse=adr_inp.text().strip()
+        adresse=adr_inp.text().strip(),
     )
 
     if succes:
         QMessageBox.information(dialog, "Succès", "Informations mises à jour.")
         dialog.accept()
         main_window.reload_client_list()
-        if main_window.selected_user and main_window.selected_user.data(Qt.UserRole) == client_id:
-             main_window.show_account(main_window.selected_user)
+        if (
+            main_window.selected_user
+            and main_window.selected_user.data(Qt.UserRole) == client_id
+        ):
+            main_window.show_account(main_window.selected_user)
     else:
         QMessageBox.critical(dialog, "Erreur", f"Échec mise à jour : {msg}")

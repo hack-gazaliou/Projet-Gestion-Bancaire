@@ -4,12 +4,15 @@ from PySide6.QtCore import Qt
 from PySide6.QtGui import QAction
 from PySide6.QtWidgets import (
     QApplication,
+    QFrame,
     QHBoxLayout,
+    QInputDialog,
     QLabel,
     QLineEdit,
     QListWidget,
     QListWidgetItem,
     QMainWindow,
+    QMessageBox,
     QPushButton,
     QVBoxLayout,
     QWidget,
@@ -130,65 +133,20 @@ class MainWindow(QMainWindow):
                 item.setHidden(not correspondance)
 
     def show_account(self, item):
-        """Affiche les détails du client à droite"""
+        """Affiche les détails du client et ses comptes avec actions"""
         if item is None:
             return
+
         new_widget = QWidget()
         new_widget.setStyleSheet("background-color: white;")
         new_layout = QVBoxLayout(new_widget)
 
         if hasattr(self, "right_panel_widget") and self.right_panel_widget:
             self.content_layout.replaceWidget(self.right_panel_widget, new_widget)
-            self.right_panel_widget.deleteLater()  # On détruit proprement l'ancien
+            self.right_panel_widget.deleteLater()
 
         self.right_panel_widget = new_widget
         self.right_panel_layout = new_layout
-
-        if isinstance(item, QListWidgetItem):
-            client_id = item.data(Qt.UserRole)
-            self.selected_user = item
-        else:
-            client_id = item.data(Qt.UserRole)
-            self.selected_user = item
-
-        infos = self.controller.get_client_details(client_id)
-        comptes = self.controller.get_comptes_client(client_id)
-
-        if infos:
-            self.right_panel_layout.addWidget(
-                QLabel(f"<h2>Client : {infos['nom']}</h2>")
-            )
-            self.right_panel_layout.addWidget(
-                QLabel(f"<b>Email :</b> {infos.get('email', 'N/A')}")
-            )
-            self.right_panel_layout.addWidget(
-                QLabel(f"<b>Tél :</b> {infos.get('telephone', 'N/A')}")
-            )
-            self.right_panel_layout.addWidget(
-                QLabel(f"<b>Adresse :</b> {infos.get('adresse', 'N/A')}")
-            )
-
-        self.right_panel_layout.addWidget(QLabel("<h3>Comptes Bancaires :</h3>"))
-
-        if not comptes:
-            self.right_panel_layout.addWidget(QLabel("<i>Aucun compte ouvert.</i>"))
-        else:
-            for cpt in comptes:
-                btn_texte = (
-                    f"{cpt['type']} (N°{cpt['id']})   ----->   Solde : {cpt['solde']}"
-                )
-                btn = QPushButton(btn_texte)
-                btn.setStyleSheet(
-                    "text-align: left; padding: 10px; font-size: 14px; background-color: #f0f0f0; border: 1px solid #ccc;"
-                )
-                self.right_panel_layout.addWidget(btn)
-
-        self.right_panel_layout.addStretch()
-
-        while self.right_panel_layout.count():
-            child = self.right_panel_layout.takeAt(0)
-            if child.widget():
-                child.widget().deleteLater()
 
         client_id = item.data(Qt.UserRole)
         self.selected_user = item
@@ -206,24 +164,92 @@ class MainWindow(QMainWindow):
             self.right_panel_layout.addWidget(
                 QLabel(f"<b>Tél :</b> {infos.get('telephone', 'N/A')}")
             )
-            self.right_panel_layout.addWidget(
-                QLabel(f"<b>Adresse :</b> {infos.get('adresse', 'N/A')}")
-            )
 
-        self.right_panel_layout.addWidget(QLabel("<h3>Comptes Bancaires :</h3>"))
+        self.right_panel_layout.addWidget(QLabel("<hr>"))
+
+        header_layout = QHBoxLayout()
+        header_layout.addWidget(QLabel("<h3>Comptes Bancaires :</h3>"))
+
+        btn_add = QPushButton("+ Ouvrir un compte")
+        btn_add.setStyleSheet(
+            "background-color: #27ae60; color: white; font-weight: bold; padding: 5px;"
+        )
+        btn_add.clicked.connect(lambda: self.ouvrir_compte_dialog(client_id))
+        header_layout.addWidget(btn_add)
+
+        self.right_panel_layout.addLayout(header_layout)
 
         if not comptes:
             self.right_panel_layout.addWidget(QLabel("<i>Aucun compte ouvert.</i>"))
         else:
             for cpt in comptes:
-                btn_texte = (
-                    f"{cpt['type']} (N°{cpt['id']})   ----->   Solde : {cpt['solde']}"
+                frame = QFrame()
+                frame.setStyleSheet(
+                    "border: 1px solid #ccc; border-radius: 5px; margin-bottom: 5px;"
                 )
-                btn = QPushButton(btn_texte)
-                btn.setStyleSheet("text-align: left; padding: 10px; font-size: 14px;")
-                self.right_panel_layout.addWidget(btn)
+                row_layout = QHBoxLayout(frame)
+
+                lbl_info = QLabel(f"<b>{cpt['type']}</b> (N°{cpt['id']})")
+                lbl_solde = QLabel(f"{cpt['solde']}")
+                lbl_solde.setStyleSheet(
+                    "font-weight: bold; color: #2c3e50; font-size: 14px;"
+                )
+
+                row_layout.addWidget(lbl_info)
+                row_layout.addStretch()  # Pousse le reste à droite
+                row_layout.addWidget(lbl_solde)
+
+                btn_close = QPushButton("Clôturer")
+                btn_close.setStyleSheet(
+                    "background-color: #e74c3c; color: white; border: none; padding: 5px;"
+                )
+
+                btn_close.clicked.connect(
+                    lambda checked, cid=cpt["id"]: self.cloturer_compte_dialog(cid)
+                )
+
+                row_layout.addWidget(btn_close)
+
+                self.right_panel_layout.addWidget(frame)
 
         self.right_panel_layout.addStretch()
+
+    def ouvrir_compte_dialog(self, client_id):
+        """Ouvre une popup pour choisir le type de compte à créer"""
+        types = ["COURANT", "LIVRET_A", "PEL"]
+        type_choisi, ok = QInputDialog.getItem(
+            self, "Nouveau Compte", "Type de compte :", types, 0, False
+        )
+
+        if ok and type_choisi:
+            # On crée avec 0€ par défaut
+            succes, msg = self.controller.ajouter_compte_client(
+                client_id, type_choisi, 0.0
+            )
+
+            if succes:
+                QMessageBox.information(self, "Succès", "Compte ouvert avec succès.")
+                self.show_account(self.selected_user)  # Rafraîchir l'affichage
+            else:
+                QMessageBox.critical(self, "Erreur", msg)
+
+    def cloturer_compte_dialog(self, compte_id):
+        """Demande confirmation et clôture le compte"""
+        reply = QMessageBox.question(
+            self,
+            "Confirmation",
+            "Êtes-vous sûr de vouloir clôturer ce compte ?\nCette action est irréversible.",
+            QMessageBox.Yes | QMessageBox.No,
+        )
+
+        if reply == QMessageBox.Yes:
+            succes, msg = self.controller.cloturer_compte(compte_id)
+
+            if succes:
+                QMessageBox.information(self, "Succès", msg)
+                self.show_account(self.selected_user)  # Rafraîchir
+            else:
+                QMessageBox.warning(self, "Impossible", msg)
 
 
 if __name__ == "__main__":

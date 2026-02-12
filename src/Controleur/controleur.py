@@ -150,7 +150,7 @@ class Controller:
             # CONVERSION : Euros (Input) -> Centimes (BDD)
             solde_initial_centimes = self._euros_vers_centimes(solde_initial_euros)
 
-            nouveau_compte = Compte(
+            Compte(
                 account_id=None,
                 type_compte=type_enum,
                 id_client=client_id,

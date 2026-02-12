@@ -1,7 +1,5 @@
 import logging
 
-from sqlalchemy.exc import IntegrityError
-
 from Modele.SQL.sql_comptes import (
     SQLCompte,
 )

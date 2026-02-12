@@ -10,8 +10,8 @@ logging.basicConfig(
 )
 logger = logging.getLogger("InitDB")
 
-from Controleur.controleur import Controller
-from Modele.SQL.DBSetup import initialiser_bdd, initialiser_coffre_fort
+from Controleur.controleur import Controller  # noqa: E402
+from Modele.SQL.DBSetup import initialiser_bdd, initialiser_coffre_fort  # noqa: E402
 
 
 def init_db():

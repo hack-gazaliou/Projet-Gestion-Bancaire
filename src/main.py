@@ -18,7 +18,7 @@ logger = logging.getLogger("MainApp")
 current_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(current_dir)
 
-from Vue.vue_principale import MainWindow
+from Vue.vue_principale import MainWindow  # noqa: E402
 
 
 def main():

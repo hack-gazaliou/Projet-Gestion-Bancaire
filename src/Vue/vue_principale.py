@@ -1,3 +1,4 @@
+import os
 import sys
 
 import account_operations
@@ -6,21 +7,28 @@ from PySide6.QtCore import Qt
 from PySide6.QtGui import QAction
 from PySide6.QtWidgets import (
     QApplication,
+    QFormLayout,
+    QGroupBox,
     QHBoxLayout,
     QLabel,
     QLineEdit,
     QListWidget,
     QListWidgetItem,
     QMainWindow,
+    QMessageBox,
     QPushButton,
     QVBoxLayout,
     QWidget,
 )
 
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+from src.Controleur.controleur import Controller
+
 
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
+        self.controller = Controller()
 
         self.setWindowTitle("Barre latérale fixe - PySide6")
         self.resize(800, 500)

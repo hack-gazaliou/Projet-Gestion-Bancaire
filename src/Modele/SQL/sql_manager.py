@@ -12,3 +12,4 @@ DATABASE_URL = "sqlite:///bank.db"
 engine = create_engine(DATABASE_URL)
 SESSIONLOCAL = sessionmaker(bind=engine, expire_on_commit=False)
 Base = declarative_base()
+SessionLocal = SESSIONLOCAL

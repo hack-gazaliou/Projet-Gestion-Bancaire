@@ -5,12 +5,14 @@ Defines the data model for transactions between accounts.
 
 import logging
 from datetime import datetime
-
+from enum import Enum
 from Modele.SQL.sql_operations import SQLOperation
 
 logger = logging.getLogger(__name__)
 
-
+class TypeOperation(Enum):
+    DEPOT = 0
+    RETRAIT = 1
 class Operation:
     """
     Represent operations

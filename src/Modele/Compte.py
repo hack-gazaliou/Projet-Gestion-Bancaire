@@ -8,6 +8,7 @@ import logging
 from Modele.SQL.sql_comptes import SQLCompte
 from Modele.type_compte import TypeCompte
 
+
 logger = logging.getLogger(__name__)
 
 

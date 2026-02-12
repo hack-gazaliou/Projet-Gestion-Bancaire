@@ -9,7 +9,7 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 src_dir = os.path.join(current_dir, "..")
 sys.path.append(src_dir)
 
-from Controleur.controleur import DECOUVERT_MAX, Controller
+from Controleur.controleur import Controller
 from Modele.Operation import TypeOperation
 
 

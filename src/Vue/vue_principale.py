@@ -106,7 +106,7 @@ class MainWindow(QMainWindow):
         self.client_list = QListWidget()
         self.client_list.setAlternatingRowColors(True)
 
-        self.db_clients = self.get_customer_list()
+        # self.db_clients = self.get_customer_list()
 
         for client in self.db_clients:
             item = QListWidgetItem(client["nom"])
@@ -125,29 +125,63 @@ class MainWindow(QMainWindow):
         return sidebar_layout
 
     def reload_client_list(self):
-        """Recharge la liste des clients depuis 'get_customer_list', vide le filtre et réinitialise la sélection"""
         self.barre_recherche_client.clear()
         self.selected_user = None
-
         self.client_list.clear()
-        self.db_clients = self.get_customer_list()
-        for client in self.db_clients:
+
+        # On récupère la vraie liste via LE Contrôleur
+        clients = self.controller.get_tous_les_clients()
+
+        for client in clients:
             item = QListWidgetItem(client["nom"])
+            # On cache l'ID SQL dans l'item visuel
             item.setData(Qt.UserRole, client["id"])
             self.client_list.addItem(item)
 
     def show_account(self, item):
-        """Affiche les comptes du client sélectionné"""
-        operations.show_account(self, item)
+        # Nettoyage de la zone de droite
+        while self.right_panel_layout.count():
+            child = self.right_panel_layout.takeAt(0)
+            if child.widget():
+                child.widget().deleteLater()
 
-    def get_customer_list(self) -> list:
+        # récupération des données via l'ID caché
+        client_id = item.data(Qt.UserRole)
+        self.selected_user = item
+
+        infos = self.controller.get_client_details(client_id)
+        comptes = self.controller.get_comptes_client(client_id)
+
+        # Affichage
+        if infos:
+            self.right_panel_layout.addWidget(
+                QLabel(f"<h2>Client : {infos['nom']}</h2>")
+            )
+            self.right_panel_layout.addWidget(
+                QLabel(f"Email : {infos.get('email', 'N/A')}")
+            )
+
+        self.right_panel_layout.addWidget(QLabel("<h3>Comptes :</h3>"))
+
+        if not comptes:
+            self.right_panel_layout.addWidget(QLabel("Aucun compte."))
+        else:
+            for cpt in comptes:
+                texte = f"{cpt['type']} (N°{cpt['id']}) : {cpt['solde']}"
+                self.right_panel_layout.addWidget(
+                    QPushButton(texte)
+                )  # Bouton pour cliquer dessus plus tard
+
+        self.right_panel_layout.addStretch()
+
+    """def get_customer_list(self) -> list:
         return [
             {"id": 101, "nom": "Client 1"},
             {"id": 102, "nom": "Sacha Bliard"},
             {"id": 103, "nom": "Antoine Augustin"},
             {"id": 104, "nom": "Sacha Bliard"},
             {"id": 105, "nom": "Hack Gazaliou"},
-        ]
+        ]"""
 
 
 if __name__ == "__main__":

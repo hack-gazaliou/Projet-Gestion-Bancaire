@@ -1,25 +1,38 @@
 import logging
+import os
+import sys
 
-from Modele.Compte import Compte, TypeCompte
-from Modele.Operation import Operation
-from Modele.SQL.DBSetup import initialiser_bdd, initialiser_coffre_fort
+from PySide6.QtWidgets import QApplication
 
-logger = logging.getLogger(__name__)
+# 1. Configurer les Logs globalement
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
+    handlers=[
+        logging.StreamHandler(sys.stdout)  # Affiche dans le terminal
+    ],
+)
+logger = logging.getLogger("MainApp")
+
+# 2. Chemins
+current_dir = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(current_dir)
+
+from Vue.vue_principale import MainWindow  # noqa: E402
 
 
 def main():
-    initialiser_bdd()
-    initialiser_coffre_fort()
+    logger.info("Application Starting...")
+    app = QApplication(sys.argv)
 
-    c1 = Compte.creer(TypeCompte.COURANT, 1000.0)
-    c2 = Compte.creer(TypeCompte.COURANT, 10000.0)
-    # On fait un transfert
-    Operation.transferer(source_id=c1.id, target_id=c2.id, amount=200.0)
+    window = MainWindow()
+    window.show()
 
-    # L'accès à solde déclenche le calcul (1000 - 200)
-    logger.debug(f"Solde compte 1 : {c1.solde}€")
-    logger.debug(f"Solde compte 2 : {c2.solde}€")
-    logger.info("Application stop")
+    logger.info("MainWindow displayed.")
+    exit_code = app.exec()
+
+    logger.info(f"Application stopping with code {exit_code}")
+    sys.exit(exit_code)
 
 
 if __name__ == "__main__":

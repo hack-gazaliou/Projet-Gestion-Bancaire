@@ -3,8 +3,8 @@ import logging
 from sqlalchemy import Column, Enum, ForeignKey, Integer
 
 from Modele.Compte import TypeCompte
-from Modele.SQL.SQLManager import Base, SessionLocal
-from Modele.SQL.SQLOperations import SQLOperation
+from Modele.SQL.sql_manager import Base, SessionLocal
+from Modele.SQL.sql_operations import SQLOperation
 
 logger = logging.getLogger(__name__)
 
@@ -14,7 +14,7 @@ class SQLCompte(Base):
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     type_compte = Column(Enum(TypeCompte), default=TypeCompte.COURANT, nullable=False)
-    id_client = Column(Integer, ForeignKey("customers.id"), nullable=False)
+    id_client = Column(Integer, ForeignKey("customers.customer_id"), nullable=False)
     # solde = Column(Float, default=0.0)
 
     @classmethod

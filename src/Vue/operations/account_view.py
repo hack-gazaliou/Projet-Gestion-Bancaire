@@ -3,7 +3,9 @@ from PySide6.QtGui import QFont
 from PySide6.QtWidgets import (
     QFrame,
     QHBoxLayout,
+    QInputDialog,
     QLabel,
+    QMessageBox,
     QPushButton,
     QScrollArea,
     QVBoxLayout,
@@ -14,8 +16,6 @@ from .base import OperationWidget
 
 
 class AccountViewWidget(OperationWidget):
-    """Widget pour visualiser les comptes d'un client"""
-
     def __init__(self, main_window, client_id, client_name):
         QWidget.__init__(self)
         self.main_window = main_window
@@ -24,100 +24,101 @@ class AccountViewWidget(OperationWidget):
         self.setStyleSheet("background-color: white;")
 
         self.create_interface()
-        self.update_right_panel()
 
     def create_interface(self):
-        """Initialise l'interface utilisateur"""
         main_layout = QVBoxLayout(self)
-
         header = QLabel(f"<h2>Comptes de {self.client_name}</h2>")
         main_layout.addWidget(header)
 
-        accounts = self.get_account_list(
-            self.client_id
-        )  # TODO: remplacer par une vraie requete SQL
+        accounts = self.main_window.controller.get_comptes_client(self.client_id)
 
         if not accounts:
             no_accounts_label = QLabel("Aucun compte trouvé pour ce client.")
             no_accounts_label.setAlignment(Qt.AlignCenter)
             main_layout.addWidget(no_accounts_label)
-            main_layout.addStretch()
-            return
+        else:
+            scroll_area = QScrollArea()
+            scroll_area.setWidgetResizable(True)
+            scroll_widget = QWidget()
+            scroll_layout = QVBoxLayout(scroll_widget)
 
-        scroll_area = QScrollArea()
-        scroll_area.setWidgetResizable(True)
-        scroll_widget = QWidget()
-        scroll_layout = QVBoxLayout(scroll_widget)
+            for account in accounts:
+                acc_data = {
+                    "id": account["id"],
+                    "nom": account["type"],
+                    "solde": account["solde"],
+                }
+                scroll_layout.addWidget(self._create_account_card(acc_data))
 
-        for account in accounts:
-            account_widget = self._create_account_card(account)
-            scroll_layout.addWidget(account_widget)
+            scroll_layout.addStretch()
+            scroll_area.setWidget(scroll_widget)
+            main_layout.addWidget(scroll_area)
 
-        scroll_layout.addStretch()
-        scroll_area.setWidget(scroll_widget)
-        main_layout.addWidget(scroll_area)
-
+        # Bouton Créer
         buttons_layout = QHBoxLayout()
-
-        create_account_button = QPushButton("Créer un compte")
+        create_account_button = QPushButton("Ouvrir un nouveau compte")
         create_account_button.clicked.connect(self._on_create_account)
         buttons_layout.addWidget(create_account_button)
-
         buttons_layout.addStretch()
         main_layout.addLayout(buttons_layout)
 
     def _create_account_card(self, account):
-        """Crée une carte pour afficher un compte"""
         card = QFrame()
-        card.setStyleSheet("""
-            QFrame {
-                border: 1px solid #ddd;
-                border-radius: 5px;
-                padding: 10px;
-                background-color: #f9f9f9;
-            }
-        """)
-
+        card.setStyleSheet(
+            "QFrame { border: 1px solid #ddd; border-radius: 5px; padding: 10px; background-color: #f9f9f9; }"
+        )
         layout = QVBoxLayout(card)
 
-        account_title = QLabel(f"<b>{account['nom']}</b>")
-        account_title.setFont(QFont("Arial", 12, QFont.Bold))
-        layout.addWidget(account_title)
+        # Titre (Type)
+        title = QLabel(f"<b>{account['nom']}</b>")
+        title.setFont(QFont("Arial", 12, QFont.Bold))
+        layout.addWidget(title)
 
-        account_id_label = QLabel(f"numéro du compte: {account['id']}")
-        layout.addWidget(account_id_label)
+        # Info
+        layout.addWidget(QLabel(f"N° Compte : {account['id']}"))
 
-        account_money_label = QLabel("Solde: TODO")
-        layout.addWidget(account_money_label)
+        # Solde
+        lbl_solde = QLabel(f"Solde : {account['solde']}")
+        lbl_solde.setStyleSheet("font-weight: bold; color: #2c3e50; font-size: 14px;")
+        layout.addWidget(lbl_solde)
 
-        button_layout = QHBoxLayout()
-
-        detail_button = QPushButton("Voir détails")
-        detail_button.clicked.connect(lambda: self._show_account_detail(account))
-        button_layout.addWidget(detail_button)
-
+        # Actions
+        btn_layout = QHBoxLayout()
         close_button = QPushButton("Clôturer")
+        close_button.setStyleSheet("color: red;")
         close_button.clicked.connect(lambda: self._on_close_account(account))
-        button_layout.addWidget(close_button)
-
-        button_layout.addStretch()
-        layout.addLayout(button_layout)
+        btn_layout.addWidget(close_button)
+        btn_layout.addStretch()
+        layout.addLayout(btn_layout)
 
         return card
 
-    def _show_account_detail(self, account):
-        """Affiche le détail d'un compte selectionné"""
-        # TODO affiche l historique du compte
-        print(f"Détail du compte {account['id']} ({account['nom']})")
-
-    def _on_create_account(self) -> None:
-        """Crée un nouveau compte pour le client"""
-        # À implémenter
-        print(f"Créer un compte pour le client {self.client_id}")
-
-    def _on_close_account(self, account) -> None:
-        """Clôture le compte spécifié"""
-        # À implémenter
-        print(
-            f"Clôturer le compte {account['id']} ({account['nom']}) pour le client {self.client_id}"
+    def _on_create_account(self):
+        types = ["COURANT", "LIVRET_A", "PEL"]
+        type_choisi, ok = QInputDialog.getItem(
+            self, "Ouvrir un compte", "Type de compte :", types, 0, False
         )
+
+        if ok and type_choisi:
+            succes, msg = self.main_window.controller.ajouter_compte_client(
+                self.client_id, type_choisi, 0.0
+            )
+            if succes:
+                QMessageBox.information(self, "Succès", "Compte ouvert.")
+                self.main_window.show_account(self.main_window.selected_user)  # Refresh
+            else:
+                QMessageBox.critical(self, "Erreur", msg)
+
+    def _on_close_account(self, account):
+        reply = QMessageBox.question(
+            self,
+            "Confirmer",
+            f"Voulez-vous vraiment clôturer le compte {account['nom']} (N°{account['id']}) ?",
+            QMessageBox.Yes | QMessageBox.No,
+        )
+        if reply == QMessageBox.Yes:
+            QMessageBox.information(
+                self,
+                "Info",
+                "Fonctionnalité de clôture à implémenter dans le contrôleur.",
+            )

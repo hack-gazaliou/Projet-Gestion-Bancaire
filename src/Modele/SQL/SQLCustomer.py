@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING
 
 from sqlalchemy import Column, Integer, String
 
-from Modele.SQL.SQLManager import Base
+from Modele.SQL.sql_manager import Base
 
 if TYPE_CHECKING:
     from Modele.Customer import Customer as CustomerStorageModel

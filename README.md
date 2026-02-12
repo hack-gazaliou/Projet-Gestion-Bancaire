@@ -34,6 +34,7 @@ source ".venv/bin/activate"
 source ".venv\Scripts\activate"
 
 # Install dependencies
+pip install requirements.txt
 pip install -e .
 ```
 ## Utilisation

@@ -3,7 +3,7 @@ from datetime import datetime
 
 from sqlalchemy import Column, DateTime, Float, ForeignKey, Integer
 
-from Modele.SQL.SQLManager import Base, SessionLocal
+from Modele.SQL.sql_manager import Base, SessionLocal
 
 logger = logging.getLogger(__name__)
 

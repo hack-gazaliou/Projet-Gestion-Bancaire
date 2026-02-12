@@ -1,37 +1,32 @@
-import os
 import sys
 
-import account_operations
-import operations
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QAction
 from PySide6.QtWidgets import (
     QApplication,
-    QFormLayout,
-    QGroupBox,
     QHBoxLayout,
     QLabel,
     QLineEdit,
     QListWidget,
     QListWidgetItem,
     QMainWindow,
-    QMessageBox,
     QPushButton,
     QVBoxLayout,
     QWidget,
 )
 
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-from src.Controleur.controleur import Controller
+from Controleur.controleur import Controller
+from Vue import account_operations, operations
 
 
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
+
         self.controller = Controller()
 
-        self.setWindowTitle("Barre latérale fixe - PySide6")
-        self.resize(800, 500)
+        self.setWindowTitle("Gestion Bancaire - Finale")
+        self.resize(900, 600)
 
         self.selected_user = None
 
@@ -43,25 +38,18 @@ class MainWindow(QMainWindow):
         )
 
         self.createToolBar()
-
         content_area = QWidget()
         self.setCentralWidget(content_area)
         self.content_layout = QHBoxLayout(content_area)
-
         self.side_client_bar = self.createSideClientBar()
 
         self.content_layout.addLayout(self.side_client_bar, 1)
         self.content_layout.addWidget(self.right_panel_widget, 4)
 
-    def filtrer_clients(self):
-        texte_recherche = self.barre_recherche_client.text().lower()
-        for i in range(self.client_list.count()):
-            item = self.client_list.item(i)
-            if item:
-                correspondance = item.text().lower().startswith(texte_recherche)
-                item.setHidden(not correspondance)
+        self.reload_client_list()
 
     def createToolBar(self):
+        """Création de la barre de menu en haut"""
         toolbar = self.addToolBar("Menu Principal")
         toolbar.setMovable(False)
 
@@ -88,9 +76,9 @@ class MainWindow(QMainWindow):
         toolbar.addAction(action_modif)
 
     def createSideClientBar(self):
+        """Création de la colonne de gauche (Recherche + Liste vide)"""
         sidebar_layout = QVBoxLayout()
 
-        # Barre de recherche et bouton Refresh côte à côte
         search_row = QHBoxLayout()
         self.barre_recherche_client = QLineEdit()
         self.barre_recherche_client.setPlaceholderText("Nom client")
@@ -103,19 +91,13 @@ class MainWindow(QMainWindow):
         search_row.addWidget(self.bouton_refresh_clients)
         sidebar_layout.addLayout(search_row)
 
+        # Liste vide
         self.client_list = QListWidget()
         self.client_list.setAlternatingRowColors(True)
-
-        # self.db_clients = self.get_customer_list()
-
-        for client in self.db_clients:
-            item = QListWidgetItem(client["nom"])
-            item.setData(Qt.UserRole, client["id"])
-            self.client_list.addItem(item)
-
         self.client_list.itemClicked.connect(self.show_account)
         sidebar_layout.addWidget(self.client_list)
 
+        # Bouton création
         self.bouton_create_new_client = QPushButton("Créer un client")
         self.bouton_create_new_client.clicked.connect(
             lambda: account_operations.show_create_client_popup(self)
@@ -125,63 +107,123 @@ class MainWindow(QMainWindow):
         return sidebar_layout
 
     def reload_client_list(self):
+        """Récupère les clients depuis la BDD et remplit la liste"""
         self.barre_recherche_client.clear()
         self.selected_user = None
         self.client_list.clear()
 
-        # On récupère la vraie liste via LE Contrôleur
         clients = self.controller.get_tous_les_clients()
 
         for client in clients:
             item = QListWidgetItem(client["nom"])
-            # On cache l'ID SQL dans l'item visuel
+            # On cache l'ID SQL dans l'item
             item.setData(Qt.UserRole, client["id"])
             self.client_list.addItem(item)
 
+    def filtrer_clients(self):
+        """Filtre visuel de la liste"""
+        texte_recherche = self.barre_recherche_client.text().lower()
+        for i in range(self.client_list.count()):
+            item = self.client_list.item(i)
+            if item:
+                correspondance = item.text().lower().startswith(texte_recherche)
+                item.setHidden(not correspondance)
+
     def show_account(self, item):
-        # Nettoyage de la zone de droite
+        """Affiche les détails du client à droite"""
+        if item is None:
+            return
+        new_widget = QWidget()
+        new_widget.setStyleSheet("background-color: white;")
+        new_layout = QVBoxLayout(new_widget)
+
+        if hasattr(self, "right_panel_widget") and self.right_panel_widget:
+            self.content_layout.replaceWidget(self.right_panel_widget, new_widget)
+            self.right_panel_widget.deleteLater()  # On détruit proprement l'ancien
+
+        self.right_panel_widget = new_widget
+        self.right_panel_layout = new_layout
+
+        if isinstance(item, QListWidgetItem):
+            client_id = item.data(Qt.UserRole)
+            self.selected_user = item
+        else:
+            client_id = item.data(Qt.UserRole)
+            self.selected_user = item
+
+        infos = self.controller.get_client_details(client_id)
+        comptes = self.controller.get_comptes_client(client_id)
+
+        if infos:
+            self.right_panel_layout.addWidget(
+                QLabel(f"<h2>Client : {infos['nom']}</h2>")
+            )
+            self.right_panel_layout.addWidget(
+                QLabel(f"<b>Email :</b> {infos.get('email', 'N/A')}")
+            )
+            self.right_panel_layout.addWidget(
+                QLabel(f"<b>Tél :</b> {infos.get('telephone', 'N/A')}")
+            )
+            self.right_panel_layout.addWidget(
+                QLabel(f"<b>Adresse :</b> {infos.get('adresse', 'N/A')}")
+            )
+
+        self.right_panel_layout.addWidget(QLabel("<h3>Comptes Bancaires :</h3>"))
+
+        if not comptes:
+            self.right_panel_layout.addWidget(QLabel("<i>Aucun compte ouvert.</i>"))
+        else:
+            for cpt in comptes:
+                btn_texte = (
+                    f"{cpt['type']} (N°{cpt['id']})   ----->   Solde : {cpt['solde']}"
+                )
+                btn = QPushButton(btn_texte)
+                btn.setStyleSheet(
+                    "text-align: left; padding: 10px; font-size: 14px; background-color: #f0f0f0; border: 1px solid #ccc;"
+                )
+                self.right_panel_layout.addWidget(btn)
+
+        self.right_panel_layout.addStretch()
+
         while self.right_panel_layout.count():
             child = self.right_panel_layout.takeAt(0)
             if child.widget():
                 child.widget().deleteLater()
 
-        # récupération des données via l'ID caché
         client_id = item.data(Qt.UserRole)
         self.selected_user = item
 
         infos = self.controller.get_client_details(client_id)
         comptes = self.controller.get_comptes_client(client_id)
 
-        # Affichage
         if infos:
             self.right_panel_layout.addWidget(
                 QLabel(f"<h2>Client : {infos['nom']}</h2>")
             )
             self.right_panel_layout.addWidget(
-                QLabel(f"Email : {infos.get('email', 'N/A')}")
+                QLabel(f"<b>Email :</b> {infos.get('email', 'N/A')}")
+            )
+            self.right_panel_layout.addWidget(
+                QLabel(f"<b>Tél :</b> {infos.get('telephone', 'N/A')}")
+            )
+            self.right_panel_layout.addWidget(
+                QLabel(f"<b>Adresse :</b> {infos.get('adresse', 'N/A')}")
             )
 
-        self.right_panel_layout.addWidget(QLabel("<h3>Comptes :</h3>"))
+        self.right_panel_layout.addWidget(QLabel("<h3>Comptes Bancaires :</h3>"))
 
         if not comptes:
-            self.right_panel_layout.addWidget(QLabel("Aucun compte."))
+            self.right_panel_layout.addWidget(QLabel("<i>Aucun compte ouvert.</i>"))
         else:
             for cpt in comptes:
-                texte = f"{cpt['type']} (N°{cpt['id']}) : {cpt['solde']}"
-                self.right_panel_layout.addWidget(
-                    QPushButton(texte)
-                )  # Bouton pour cliquer dessus plus tard
+                btn_texte = (
+                    f"{cpt['type']} (N°{cpt['id']})   ----->   Solde : {cpt['solde']}"
+                )
+                btn = QPushButton(btn_texte)
+                btn.setStyleSheet("text-align: left; padding: 10px; font-size: 14px;")
+                self.right_panel_layout.addWidget(btn)
 
         self.right_panel_layout.addStretch()
-
-    """def get_customer_list(self) -> list:
-        return [
-            {"id": 101, "nom": "Client 1"},
-            {"id": 102, "nom": "Sacha Bliard"},
-            {"id": 103, "nom": "Antoine Augustin"},
-            {"id": 104, "nom": "Sacha Bliard"},
-            {"id": 105, "nom": "Hack Gazaliou"},
-        ]"""
 
 
 if __name__ == "__main__":

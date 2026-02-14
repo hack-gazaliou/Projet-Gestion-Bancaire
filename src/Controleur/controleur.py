@@ -10,6 +10,7 @@ from Modele.customer import (
     CustomerPersonalInfo,
 )
 from Modele.operation import Operation
+
 from Modele.SQL.sql_comptes import SQLCompte
 from Modele.SQL.sql_customer import Customer as CustomerSQL
 from Modele.SQL.sql_manager import SessionLocal

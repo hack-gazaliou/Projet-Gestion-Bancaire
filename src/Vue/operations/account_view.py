@@ -21,7 +21,7 @@ class AccountViewWidget(OperationWidget):
         self.main_window = main_window
         self.client_id = client_id
         self.client_name = client_name
-        self.setStyleSheet("background-color: white;")
+        #self.setStyleSheet("background-color: white;")
 
         self.create_interface()
 

@@ -34,7 +34,7 @@ class MainWindow(QMainWindow):
         self.selected_user = None
 
         self.right_panel_widget = QWidget()
-        self.right_panel_widget.setStyleSheet("background-color: white;")
+        #self.right_panel_widget.setStyleSheet("background-color: white;")
         self.right_panel_layout = QVBoxLayout(self.right_panel_widget)
         self.right_panel_layout.addWidget(
             QLabel("Sélectionnez un client ou une action.")
@@ -138,7 +138,7 @@ class MainWindow(QMainWindow):
             return
 
         new_widget = QWidget()
-        new_widget.setStyleSheet("background-color: white;")
+        # new_widget.setStyleSheet("background-color: white;")
         new_layout = QVBoxLayout(new_widget)
 
         if hasattr(self, "right_panel_widget") and self.right_panel_widget:

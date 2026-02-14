@@ -3,15 +3,12 @@ Database Initialization Module.
 Provides functions to set up the database schema and initial state.
 """
 
-import logging
-
 from sqlalchemy.exc import SQLAlchemyError
 
+from Logger import logger
 from Modele.SQL.sql_comptes import SQLCompte
 from Modele.SQL.sql_manager import SESSIONLOCAL, Base, engine
 from Modele.type_compte import TypeCompte
-
-logger = logging.getLogger(__name__)
 
 
 def initialiser_bdd() -> None:

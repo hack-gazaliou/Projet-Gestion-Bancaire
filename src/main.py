@@ -1,20 +1,10 @@
-import logging
 import os
 import sys
 
 from PySide6.QtWidgets import QApplication
 
-# 1. Configurer les Logs globalement
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
-    handlers=[
-        logging.StreamHandler(sys.stdout)  # Affiche dans le terminal
-    ],
-)
-logger = logging.getLogger("MainApp")
+from Logger import logger
 
-# 2. Chemins
 current_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(current_dir)
 

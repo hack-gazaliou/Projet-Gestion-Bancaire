@@ -7,7 +7,7 @@ import logging
 
 from sqlalchemy.exc import SQLAlchemyError
 
-from Modele.Compte import Compte
+from Modele.SQL.sql_comptes import SQLCompte
 from Modele.SQL.sql_manager import SESSIONLOCAL, Base, engine
 from Modele.type_compte import TypeCompte
 
@@ -29,11 +29,11 @@ def initialiser_coffre_fort() -> None:
     Initializes the bank's master account (ID 0) if it does not already exist.
     """
     with SESSIONLOCAL() as session:
-        coffre = session.query(Compte).filter_by(id=0).first()
+        coffre = session.query(SQLCompte).filter_by(id=0).first()
 
         if not coffre:
             # Create the master account (The Safe) with ID 0
-            coffre = Compte(account_id=0, type_compte=TypeCompte.COURANT, id_client=0)
+            coffre = SQLCompte(id=0, type_compte=TypeCompte.COURANT, id_client=0)
             session.add(coffre)
             try:
                 session.commit()

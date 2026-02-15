@@ -172,7 +172,6 @@ class Controller:
             if not compte:
                 return False, "Compte introuvable"
 
-            # 0 = Banque/Cash vers Compte
             op = Operation(0, compte_id, montant_centimes)
             op.execute()
 

@@ -4,7 +4,7 @@ Unitary test for the Compte class and associated method
 
 from unittest.mock import MagicMock, patch
 
-from Modele.Compte import Compte
+from Modele.compte import Compte
 from Modele.type_compte import TypeCompte
 
 
@@ -13,7 +13,7 @@ class TestCompte:
     Compte test class
     """
 
-    @patch("Modele.Compte.SQLCompte.creer")
+    @patch("Modele.SQL.sql_comptes.SQLCompte.creer")
     def test_init_nouveau_compte(self, mock_creer):
         """Test account creation (id=None)"""
         mock_creer.return_value = MagicMock(id=42)
@@ -29,7 +29,7 @@ class TestCompte:
 
     def test_init_compte_existant(self):
         """Test init of an existing account"""  # noqa : E501
-        with patch("Modele.Compte.SQLCompte.creer") as mock_creer:
+        with patch("Modele.SQL.sql_comptes.SQLCompte.creer") as mock_creer:
             compte = Compte(account_id=10, type_compte=TypeCompte.PEL, id_client=1)
             assert compte.get_id() == 10  # type:ignore
             mock_creer.assert_not_called()
@@ -37,7 +37,7 @@ class TestCompte:
             assert compte.get_id() == 10  # type:ignore
             mock_creer.assert_not_called()
 
-    @patch("Modele.Compte.SQLCompte.get_credits_and_debits")
+    @patch("Modele.SQL.sql_comptes.SQLCompte.get_credits_and_debits")
     def test_propriete_solde(self, mock_get_amounts):
         """Test balance computation"""
         # On simule 500€ de crédits et 200€ de débits
@@ -46,7 +46,7 @@ class TestCompte:
         assert compte.solde == 300
         mock_get_amounts.assert_called_with(1)
 
-    @patch("Modele.Compte.SQLCompte.get")
+    @patch("Modele.SQL.sql_comptes.SQLCompte.get")
     def test_load_success(self, mock_get_sql):
         """Test account loading"""
         mock_db_obj = MagicMock()
@@ -59,8 +59,8 @@ class TestCompte:
         assert compte.get_type_compte() == TypeCompte.LIVRET_A  # type:ignore
         mock_get_sql.assert_called_once_with(99)
 
-    @patch("Modele.Compte.SQLCompte.get")
-    @patch("Modele.Compte.logger")
+    @patch("Modele.SQL.sql_comptes.SQLCompte.get")
+    @patch("Modele.compte.logger")
     def test_load_not_found(self, mock_logger, mock_get_sql):
         """Test account loading fail"""
         mock_get_sql.return_value = None
@@ -68,7 +68,7 @@ class TestCompte:
         assert compte is None
         mock_logger.error.assert_called_with("Account not found")
 
-    @patch("Modele.Compte.SQLCompte.get_credits_and_debits")
+    @patch("Modele.compte.SQLCompte.get_credits_and_debits")
     def test_repr(self, mock_get_amounts):
         """Test object display"""
         mock_get_amounts.return_value = (100, 20)

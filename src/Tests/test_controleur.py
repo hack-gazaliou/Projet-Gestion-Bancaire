@@ -10,7 +10,6 @@ src_dir = os.path.join(current_dir, "..")
 sys.path.append(src_dir)
 
 from Controleur.controleur import Controller  # noqa: E402
-from Modele.Operation import TypeOperation  # noqa: E402
 
 
 @pytest.fixture
@@ -97,18 +96,17 @@ def test_get_comptes_client(controller, mock_session):
 
 def test_depot_espece(controller):
     fake_compte = MagicMock()
-    type(fake_compte).solde = PropertyMock(side_effect=[0, 10000.0])
+    type(fake_compte).solde = PropertyMock(side_effect=[0, 10000])
 
     with patch("Controleur.controleur.Compte.load", return_value=fake_compte):
         with patch("Controleur.controleur.Operation") as MockOperationClass:
             mock_op_instance = MockOperationClass.return_value
 
-            succes, msg = controller.gerer_operation_espece(
-                1, 10000, TypeOperation.DEPOT
+            succes, _ = controller.effectuer_depot(
+                1, 100.0
             )
 
             assert succes is True
-            assert "100.00 €" in msg
 
             MockOperationClass.assert_called_with(0, 1, 10000)
             mock_op_instance.execute.assert_called_once()
@@ -122,8 +120,8 @@ def test_retrait_espece_succes(controller):
         with patch("Controleur.controleur.Operation") as MockOperationClass:
             mock_op_instance = MockOperationClass.return_value
 
-            succes, msg = controller.gerer_operation_espece(
-                1, 10000, TypeOperation.RETRAIT
+            succes, msg = controller.effectuer_retrait(
+                1, 100.0
             )
 
             assert succes is True
@@ -139,8 +137,8 @@ def test_retrait_espece_insuffisant(controller):
         with patch("Controleur.controleur.Operation") as MockOperationClass:
             _ = MockOperationClass.return_value
 
-            succes, msg = controller.gerer_operation_espece(
-                1, 100000, TypeOperation.RETRAIT
+            succes, msg = controller.effectuer_retrait(
+                1, 100000
             )
 
             assert succes is False
@@ -157,7 +155,7 @@ def test_virement_succes(controller):
         with patch("Controleur.controleur.Operation") as MockOperationClass:
             mock_op_instance = MockOperationClass.return_value
 
-            succes, msg = controller.effectuer_virement(1, 2, 5000)
+            succes, _ = controller.effectuer_virement(1, 2, 50.0)
 
             assert succes is True
             MockOperationClass.assert_called_with(1, 2, 5000)

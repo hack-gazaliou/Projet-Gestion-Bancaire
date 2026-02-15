@@ -7,9 +7,9 @@ This page contains technical documentation generated automatically from the proj
 The logical core and entities of the application.
 
 ### Main entities
-::: Modele.Compte
-::: Modele.Customer
-::: Modele.Operation
+::: Modele.compte
+::: Modele.customer
+::: Modele.operation
 
 ### Data Access (SQL)
 These modules manage persistence with the database.
@@ -17,7 +17,7 @@ These modules manage persistence with the database.
 ::: Modele.SQL.sql_manager
 ::: Modele.SQL.db_setup
 ::: Modele.SQL.sql_comptes
-::: Modele.SQL.SQLCustomer
+::: Modele.SQL.sql_customer
 ::: Modele.SQL.sql_operations
 
 ---
@@ -25,7 +25,7 @@ These modules manage persistence with the database.
 ## Controller
 The link between the Model and the View.
 
-::: Controleur
+::: Controleur.controleur
 
 ---
 

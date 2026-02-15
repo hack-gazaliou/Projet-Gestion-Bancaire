@@ -5,7 +5,7 @@ from sqlalchemy import Column, Integer, String
 from Modele.SQL.sql_manager import Base
 
 if TYPE_CHECKING:
-    from Modele.Customer import Customer as CustomerStorageModel
+    from Modele.customer import Customer as CustomerStorageModel
 
 
 class Customer(Base):
@@ -21,10 +21,10 @@ class Customer(Base):
 
     def to_domain(self) -> "CustomerStorageModel":
         """
-        Convertit les parametres SQL en un objet Customer utilisable par l'application
-        C'est à dire diviser en personal_info, contact_info, card_info, etc.
+        Converts SQL parameters into a Customer object that can be used by the application.
+        That is, divide into personal_info, contact_info, card_info, etc.
         """
-        from Modele.Customer import (
+        from Modele.customer import (
             Customer,
             CustomerCardInfo,
             CustomerContactInfo,

@@ -42,7 +42,7 @@ class SQLCompte(Base):
             )
             total_debits = sum(op.montant for op in debit_ops)
 
-            return total_credits, total_debits
+            return total_credits, total_debits  # type: ignore
 
     @classmethod
     def creer(cls, type_enum, id_client, initial_amount: int = 0):
@@ -58,7 +58,7 @@ class SQLCompte(Base):
 
             if initial_amount != 0:
                 # pylint: disable=import-outside-toplevel
-                from Modele.Operation import Operation
+                from Modele.operation import Operation
 
                 op_initiale = Operation(
                     id_source_account=0,  # Bank internal account

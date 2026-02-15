@@ -8,7 +8,7 @@ from sqlalchemy.exc import SQLAlchemyError
 if TYPE_CHECKING:
     # Cet import n'est lu que par VS Code
     # Il sera ignoré par Python à l'exécution
-    from Modele.SQL.SQLCustomer import Customer as CustomerSQL
+    from Modele.SQL.sql_customer import Customer as CustomerSQL
 
 
 @dataclass
@@ -47,7 +47,7 @@ class Customer:
         """
         Crée un nouveau Customer si l'ID est absent, ou met à jour l'existante
         """
-        from Modele.SQL.SQLCustomer import Customer as CustomerSQL
+        from Modele.SQL.sql_customer import Customer as CustomerSQL
 
         # Import local pour éviter une erreur ImportError ou AttributeError
         # car classe Customer_SQL importe aussi Customer
@@ -91,7 +91,7 @@ class Customer:
         """
         Récupère un client dans la bdd et reconstruit l'objet Customer
         """
-        from Modele.SQL.SQLCustomer import Customer as CustomerSQL
+        from Modele.SQL.sql_customer import Customer as CustomerSQL
 
         try:
             customer_storage_model: CustomerSQL | None = (
@@ -128,7 +128,7 @@ class Customer:
         """
         Supprime le client actuel de la base de données
         """
-        from Modele.SQL.SQLCustomer import Customer as CustomerSQL
+        from Modele.SQL.sql_customer import Customer as CustomerSQL
 
         if not self.customer_id:
             print(

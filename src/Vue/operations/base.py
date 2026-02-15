@@ -9,7 +9,7 @@ class OperationWidget(QWidget):
         super().__init__()
         self.main_window = main_window
         self.current_user = main_window.selected_user
-        self.setStyleSheet("background-color: white;")
+        # self.setStyleSheet("background-color: white;")
 
     def update_right_panel(self):
         """Remplace le widget de droite"""

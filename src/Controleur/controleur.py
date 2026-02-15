@@ -2,17 +2,18 @@ import os
 import random
 import sys
 
-from Modele.Compte import Compte
-from Modele.Customer import (
+from Modele.compte import Compte
+from Modele.customer import (
     Customer,
     CustomerCardInfo,
     CustomerContactInfo,
     CustomerPersonalInfo,
 )
-from Modele.Operation import Operation
+from Modele.operation import Operation
+
 from Modele.SQL.sql_comptes import SQLCompte
+from Modele.SQL.sql_customer import Customer as CustomerSQL
 from Modele.SQL.sql_manager import SessionLocal
-from Modele.SQL.SQLCustomer import Customer as CustomerSQL
 from Modele.type_compte import TypeCompte
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "src")))
@@ -172,7 +173,6 @@ class Controller:
             if not compte:
                 return False, "Compte introuvable"
 
-            # 0 = Banque/Cash vers Compte
             op = Operation(0, compte_id, montant_centimes)
             op.execute()
 

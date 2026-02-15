@@ -42,7 +42,7 @@ class SQLCompte(Base):
             )
             total_debits = sum(op.montant for op in debit_ops)
 
-            return total_credits, total_debits # type: ignore
+            return total_credits, total_debits  # type: ignore
 
     @classmethod
     def creer(cls, type_enum, id_client, initial_amount: int = 0):

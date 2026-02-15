@@ -102,9 +102,7 @@ def test_depot_espece(controller):
         with patch("Controleur.controleur.Operation") as MockOperationClass:
             mock_op_instance = MockOperationClass.return_value
 
-            succes, _ = controller.effectuer_depot(
-                1, 100.0
-            )
+            succes, _ = controller.effectuer_depot(1, 100.0)
 
             assert succes is True
 
@@ -120,9 +118,7 @@ def test_retrait_espece_succes(controller):
         with patch("Controleur.controleur.Operation") as MockOperationClass:
             mock_op_instance = MockOperationClass.return_value
 
-            succes, msg = controller.effectuer_retrait(
-                1, 100.0
-            )
+            succes, msg = controller.effectuer_retrait(1, 100.0)
 
             assert succes is True
             MockOperationClass.assert_called_with(1, 0, 10000)
@@ -137,9 +133,7 @@ def test_retrait_espece_insuffisant(controller):
         with patch("Controleur.controleur.Operation") as MockOperationClass:
             _ = MockOperationClass.return_value
 
-            succes, msg = controller.effectuer_retrait(
-                1, 100000
-            )
+            succes, msg = controller.effectuer_retrait(1, 100000)
 
             assert succes is False
             assert "insuffisant" in msg

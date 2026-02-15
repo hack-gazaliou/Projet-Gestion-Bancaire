@@ -18,8 +18,8 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from Controleur.controleur import Controller
-from Vue import account_operations, operations
+from gestion_bancaire.Controleur.controleur import Controller
+from gestion_bancaire.Vue import account_operations, operations
 
 
 class MainWindow(QMainWindow):

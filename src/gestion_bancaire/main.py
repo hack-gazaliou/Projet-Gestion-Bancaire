@@ -3,12 +3,12 @@ import sys
 
 from PySide6.QtWidgets import QApplication
 
-from Logger import logger
+from gestion_bancaire.Logger import logger
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(current_dir)
 
-from Vue.vue_principale import MainWindow  # noqa: E402
+from gestion_bancaire.Vue.vue_principale import MainWindow  # noqa: E402
 
 
 def main():

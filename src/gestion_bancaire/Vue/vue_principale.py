@@ -1,9 +1,7 @@
-import sys
 
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QAction
 from PySide6.QtWidgets import (
-    QApplication,
     QFrame,
     QHBoxLayout,
     QInputDialog,
@@ -250,10 +248,3 @@ class MainWindow(QMainWindow):
                 self.show_account(self.selected_user)  # Rafraîchir
             else:
                 QMessageBox.warning(self, "Impossible", msg)
-
-
-if __name__ == "__main__":
-    app = QApplication(sys.argv)
-    window = MainWindow()
-    window.show()
-    sys.exit(app.exec())

@@ -43,3 +43,10 @@ To use the application after successful installation, simply use the command :
 ```bash
 gestion_bancaire
 ```
+When used for the first time, you will need to initialize the database. To do this, use the command :
+```bash
+gestion_bancaire_init
+```
+add the ```--clear``` argument if you want an empty database.
+
+This command also works to reset the database (be very careful, as the changes are irreversible).

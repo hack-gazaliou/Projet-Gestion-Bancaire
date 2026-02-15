@@ -43,13 +43,16 @@ Pour l'utiliser, dans un terminal, entrez la commande :
 ```bash
 gestion_bancaire
 ```
+Lors de la première utilisation vous aurez besoin de créer la base de données. Pour cela utilisez la commande :
+```bash
+gestion_bancaire_init
+```
+Pour une base de données avec clients fictifs ou :
+ ```bash
+gestion_bancaire_init --clear
+```
+Pour une base de données vide.
 
 # Note
-Une documentation plus complète est également disponible, mais n'est pas déployée.
-Pour accéder à l'aperçu, il suffit de télécharger l'archive disponible dans les artefacts de la dernière action GitHub, de la décompresser, puis d'entrer la commande suivante dans un terminal dans le dossier décompressé :
+Une documentation plus complète est également disponible à l'adresse : https://hack-gazaliou.github.io/Projet-Gestion-Bancaire/
 
-```bash
-python -m http.server 8000
-
-# http://localhost:8000
-```

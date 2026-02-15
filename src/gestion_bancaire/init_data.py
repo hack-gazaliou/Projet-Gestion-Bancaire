@@ -1,3 +1,4 @@
+import argparse
 import logging
 import os
 import sys
@@ -15,13 +16,25 @@ from Modele.SQL.db_setup import initialiser_bdd, initialiser_coffre_fort  # noqa
 
 
 def init_db():
+    parser = argparse.ArgumentParser(description="Initialization of the banking database.")
+    parser.add_argument(
+        "--clear",
+        action="store_true",
+        help="Resets the database without creating dummy clients."
+    )
+    args = parser.parse_args()
     logger.info("==========================================")
-    logger.info("   INITIALISATION DE LA BASE DE DONNEES   ")
+    logger.info("      INITIALIZATION OF THE DATABASE      ")
     logger.info("==========================================")
 
     # 1. Remise à zéro
     initialiser_bdd()
     initialiser_coffre_fort()
+
+    if args.clear:
+        logger.info("Option --clear detected : No data added.")
+        logger.info("--- INITIALIZATION COMPLETE (database empty) ---")
+        return
 
     controller = Controller()
 

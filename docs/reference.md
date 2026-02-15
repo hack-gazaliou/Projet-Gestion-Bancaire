@@ -7,35 +7,35 @@ This page contains technical documentation generated automatically from the proj
 The logical core and entities of the application.
 
 ### Main entities
-::: Modele.compte
-::: Modele.customer
-::: Modele.operation
+::: gestion_bancaire.Modele.compte
+::: gestion_bancaire.Modele.customer
+::: gestion_bancaire.Modele.operation
 
 ### Data Access (SQL)
 These modules manage persistence with the database.
 
-::: Modele.SQL.sql_manager
-::: Modele.SQL.db_setup
-::: Modele.SQL.sql_comptes
-::: Modele.SQL.sql_customer
-::: Modele.SQL.sql_operations
+::: gestion_bancaire.Modele.SQL.sql_manager
+::: gestion_bancaire.Modele.SQL.db_setup
+::: gestion_bancaire.Modele.SQL.sql_comptes
+::: gestion_bancaire.Modele.SQL.sql_customer
+::: gestion_bancaire.Modele.SQL.sql_operations
 
 ---
 
 ## Controller
 The link between the Model and the View.
 
-::: Controleur.controleur
+::: gestion_bancaire.Controleur.controleur
 
 ---
 
 ## View
 The graphical user interface.
 
-::: Vue.vue_principale
-::: Vue.account_operations
-::: Vue.operations.account_view
-::: Vue.operations.base
-::: Vue.operations.deposit
-::: Vue.operations.transfer
-::: Vue.operations.withdraw
+::: gestion_bancaire.Vue.vue_principale
+::: gestion_bancaire.Vue.account_operations
+::: gestion_bancaire.Vue.operations.account_view
+::: gestion_bancaire.Vue.operations.base
+::: gestion_bancaire.Vue.operations.deposit
+::: gestion_bancaire.Vue.operations.transfer
+::: gestion_bancaire.Vue.operations.withdraw

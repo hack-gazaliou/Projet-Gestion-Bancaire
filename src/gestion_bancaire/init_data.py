@@ -16,11 +16,13 @@ from Modele.SQL.db_setup import initialiser_bdd, initialiser_coffre_fort  # noqa
 
 
 def init_db():
-    parser = argparse.ArgumentParser(description="Initialization of the banking database.")
+    parser = argparse.ArgumentParser(
+        description="Initialization of the banking database."
+    )
     parser.add_argument(
         "--clear",
         action="store_true",
-        help="Resets the database without creating dummy clients."
+        help="Resets the database without creating dummy clients.",
     )
     args = parser.parse_args()
     logger.info("==========================================")
@@ -95,7 +97,7 @@ def init_db():
             "a.garcia@free.fr",
             "0778901234",
             "102 boulevard Perrier, 13008 Marseille",
-            [("COURANT", -120.00), ("LIVRET_A", 50.00)], # Cas d'un compte à découvert
+            [("COURANT", -120.00), ("LIVRET_A", 50.00)],  # Cas d'un compte à découvert
         ),
         (
             "BERNARD",

@@ -27,7 +27,7 @@ dev = [
 ]
 
 [project.scripts]
-    gestion_bancaire = "main:main"
+    gestion_bancaire = "gestion_bancaire.main:main"
 
 [tool.setuptools]
 package-dir = {"" = "src"}
